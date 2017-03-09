@@ -737,6 +737,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  /**
+	   * Gives user consent to playback. Required by mobile device after a click event before Player.load().
+	   * @method consent
+	   * @return {Player} itself
+	   */
+
+
+	  Player.prototype.consent = function consent() {
+	    this.core.getCurrentPlayback().consent();
+	    return this;
+	  };
+
+	  /**
 	   * plays the current video (`source`).
 	   * @method play
 	   * @return {Player} itself
@@ -8981,6 +8993,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  /**
+	   * Gives user consent to playback (mobile devices).
+	   * @method consent
+	   */
+
+
+	  Playback.prototype.consent = function consent() {};
+
+	  /**
 	   * plays the playback.
 	   * @method play
 	   */
@@ -14465,6 +14485,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  HTML5Video.prototype.isHighDefinitionInUse = function isHighDefinitionInUse() {
 	    return false;
+	  };
+
+	  // On mobile device, HTML5 video element "retains" user action consent if
+	  // load() method is called. See Player.consent().
+
+
+	  HTML5Video.prototype.consent = function consent() {
+	    this.el.load();
 	  };
 
 	  HTML5Video.prototype.play = function play() {
@@ -38850,7 +38878,70 @@ var _clapprChromecastPlugin2 = _interopRequireDefault(_clapprChromecastPlugin);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // Application bundle file
-console.log('App loaded !');
+var $ = _clappr2.default.$;
+
+var BUNNY = 'http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8';
+var JWP_JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8';
+
+var config = {
+  parent: '.player',
+  autoPlay: true,
+  disableKeyboardShortcuts: true,
+  disableVideoTagContextMenu: true,
+  autoSeekFromUrl: false,
+  width: 640,
+  height: 360
+};
+
+// iOS stuff
+config.playback = {
+  playInline: true,
+  airPlay: true
+};
+
+// Add Chromecast support
+config.plugins = [_clapprChromecastPlugin2.default];
+config.chromecast = {
+  appId: '9DFB77C0', // Clappr default app.
+  media: {
+    type: _clapprChromecastPlugin2.default.None,
+    title: 'Live'
+  }
+};
+
+config.source = BUNNY;
+
+var player = new _clappr2.default.Player(config);
+
+var getSource = function getSource(cb) {
+  $.ajax({
+    type: 'GET',
+    url: '/source.json',
+    dataType: 'json',
+    success: function (data) {
+      console.log('data', data);
+      cb(data.source);
+    }.bind(this),
+    error: function error(xhr, type) {
+      console.log('Request failed!', xhr, type);
+      cb('request.failed');
+    }
+  });
+};
+
+var button = $('<button>').text('zap!').css({ width: 640, height: 100 }).on('click', function () {
+  player.consent();
+  getSource(function (src) {
+    player.load(src, null, true);
+  });
+});
+
+$('.app').append(button);
+
+// setTimeout(function() {
+//   player.consent()
+//   player.load(JWP_JELLY, null, true)
+// }, 8000)
 
 /***/ })
 /******/ ]);

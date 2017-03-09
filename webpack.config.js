@@ -44,7 +44,10 @@ module.exports = {
   },
   plugins: plugins,
   devServer: {
-    contentBase: path.join(__dirname, "public"),
+    contentBase: [
+      path.resolve(__dirname, "public"),
+      path.resolve(__dirname, "node_modules/clappr/dist"),
+    ],
     // publicPath: '/js/',
     compress: true,
     host: "0.0.0.0",
