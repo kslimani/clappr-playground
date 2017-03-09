@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "build": "webpack --progress",
+    "dist": "webpack --progress",
+    "release": "npm run build && npm run dist",
+    "start": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-preset-es2015": "^6.22.0",
+    "clappr": "kslimani/clappr#test",
+    "clappr-chromecast-plugin": "kslimani/clappr-chromecast-plugin#test",
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1",
+    "webpack-notifier": "^1.5.0"
+  }
+}
