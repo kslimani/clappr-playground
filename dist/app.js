@@ -5809,7 +5809,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _this = _possibleConstructorReturn(this, _BaseObject.call(this, options));
 
 	    _this.cid = (0, _utils.uniqueId)('c');
-	    _this._ensureElement();
+	    _this._ensureElement(options);
 	    _this.delegateEvents();
 	    return _this;
 	  }
@@ -5927,11 +5927,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  /**
 	   * ensures the creation of this ui component
 	   * @method _ensureElement
+	   * @param {Object} options the options object
 	   * @private
 	   */
 
 
-	  UIObject.prototype._ensureElement = function _ensureElement() {
+	  UIObject.prototype._ensureElement = function _ensureElement(options) {
 	    if (!this.el) {
 	      var attrs = _clapprZepto2.default.extend({}, (0, _lodash2.default)(this, 'attributes'));
 	      if (this.id) {
@@ -5944,7 +5945,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var tag = (0, _lodash2.default)(this, 'tagName');
 	      var $el = void 0;
 
-	      if (tag === 'video') {
+	      if (options && options.playback && options.playback.recycleVideo && tag === 'video') {
 	        // Recycle <video> element if exists, or create one.
 	        // This allow Player.load() with autoPlay on mobile
 	        // device with single touch user action.
@@ -38881,7 +38882,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var $ = _clappr2.default.$;
 
 var BUNNY = 'http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8';
-var JWP_JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8';
+var JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8';
 
 var config = {
   parent: '.player',
@@ -38893,11 +38894,11 @@ var config = {
   height: 360
 };
 
-// iOS stuff
+// Configure playback
 config.playback = {
   playInline: true,
-  airPlay: true
-};
+  airPlay: true,
+  recycleVideo: true };
 
 // Add Chromecast support
 config.plugins = [_clapprChromecastPlugin2.default];
@@ -38940,7 +38941,7 @@ $('.app').append(button);
 
 // setTimeout(function() {
 //   player.consent()
-//   player.load(JWP_JELLY, null, true)
+//   player.load(JELLY, null, true)
 // }, 8000)
 
 /***/ })

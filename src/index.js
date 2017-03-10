@@ -5,7 +5,7 @@ import ChromecastPlugin from 'clappr-chromecast-plugin'
 const $ = Clappr.$
 
 const BUNNY = 'http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8'
-const JWP_JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8'
+const JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8'
 
 let config = {
   parent: '.player',
@@ -17,10 +17,11 @@ let config = {
   height: 360,
 }
 
-// iOS stuff
+// Configure playback
 config.playback = {
   playInline: true,
   airPlay: true,
+  recycleVideo: true, // Enable <video> element recycle feature
 }
 
 // Add Chromecast support
@@ -67,5 +68,5 @@ $('.app').append(button)
 
 // setTimeout(function() {
 //   player.consent()
-//   player.load(JWP_JELLY, null, true)
+//   player.load(JELLY, null, true)
 // }, 8000)
