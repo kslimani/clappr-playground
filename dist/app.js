@@ -140,7 +140,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils2 = _interopRequireDefault(_utils);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -164,7 +164,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_container_plugin2 = _interopRequireDefault(_ui_container_plugin);
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
@@ -180,7 +180,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _container2 = _interopRequireDefault(_container);
 
-	var _core = __webpack_require__(13);
+	var _core = __webpack_require__(14);
 
 	var _core2 = _interopRequireDefault(_core);
 
@@ -236,15 +236,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _poster2 = _interopRequireDefault(_poster);
 
-	var _log = __webpack_require__(6);
+	var _log = __webpack_require__(7);
 
 	var _log2 = _interopRequireDefault(_log);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
-	var _vendor = __webpack_require__(8);
+	var _vendor = __webpack_require__(9);
 
 	var _vendor2 = _interopRequireDefault(_vendor);
 
@@ -252,7 +252,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _template2 = _interopRequireDefault(_template);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -312,11 +312,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -324,7 +324,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _browser2 = _interopRequireDefault(_browser);
 
-	var _core_factory = __webpack_require__(11);
+	var _core_factory = __webpack_require__(12);
 
 	var _core_factory2 = _interopRequireDefault(_core_factory);
 
@@ -336,7 +336,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _player_info2 = _interopRequireDefault(_player_info);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -978,7 +978,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.cancelAnimationFrame = exports.requestAnimationFrame = exports.QueryString = exports.Config = exports.Fullscreen = undefined;
+	exports.DomRecycler = exports.cancelAnimationFrame = exports.requestAnimationFrame = exports.QueryString = exports.Config = exports.Fullscreen = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -995,6 +995,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _browser = __webpack_require__(3);
 
 	var _browser2 = _interopRequireDefault(_browser);
+
+	var _clapprZepto = __webpack_require__(4);
+
+	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1263,10 +1267,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	}
 
+	// Simple Zepto element factory with video recycle feature.
+	var videoStack = [];
+
+	var DomRecycler = exports.DomRecycler = function () {
+	  function DomRecycler() {
+	    _classCallCheck(this, DomRecycler);
+	  }
+
+	  DomRecycler.configure = function configure(options) {
+	    this.options = _clapprZepto2.default.extend(this.options, options);
+	  };
+
+	  DomRecycler.create = function create(name) {
+	    if (this.options.recycleVideo && name === 'video' && videoStack.length > 0) {
+	      return videoStack.shift();
+	    }
+	    return (0, _clapprZepto2.default)('<' + name + '>');
+	  };
+
+	  DomRecycler.garbage = function garbage($el) {
+	    // Expect Zepto collection with single element (does not iterate!)
+	    if (!this.options.recycleVideo || $el[0].tagName.toUpperCase() !== 'VIDEO') return;
+	    $el.children().remove();
+	    videoStack.push($el);
+	  };
+
+	  return DomRecycler;
+	}();
+
+	DomRecycler.options = { recycleVideo: false };
+
 	exports.default = {
 	  Config: Config,
 	  Fullscreen: Fullscreen,
 	  QueryString: QueryString,
+	  DomRecycler: DomRecycler,
 	  extend: extend,
 	  formatTime: formatTime,
 	  seekStringToSeconds: seekStringToSeconds,
@@ -1362,2254 +1398,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _utils = __webpack_require__(2);
-
-	var _events = __webpack_require__(5);
-
-	var _events2 = _interopRequireDefault(_events);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	/**
-	 * @class BaseObject
-	 * @constructor
-	 * @extends Events
-	 * @module base
-	 */
-	var BaseObject = function (_Events) {
-	  _inherits(BaseObject, _Events);
-
-	  _createClass(BaseObject, [{
-	    key: 'options',
-
-	    /**
-	     * returns the object options
-	     * @property options
-	     * @type Object
-	     */
-	    get: function get() {
-	      return this._options;
-	    }
-
-	    /**
-	     * @method constructor
-	     * @param {Object} options
-	     */
-
-	  }]);
-
-	  function BaseObject() {
-	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-	    _classCallCheck(this, BaseObject);
-
-	    var _this = _possibleConstructorReturn(this, _Events.call(this, options));
-
-	    _this._options = options;
-	    _this.uniqueId = (0, _utils.uniqueId)('o');
-	    return _this;
-	  }
-	  /**
-	  * a unique id prefixed with `'o'`, `o1, o232`
-	  *
-	  * @property uniqueId
-	  * @type String
-	  */
-
-
-	  return BaseObject;
-	}(_events2.default);
-
-	exports.default = BaseObject;
-	module.exports = exports['default'];
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; // Copyright 2014 Globo.com Player authors. All rights reserved.
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	var _log = __webpack_require__(6);
-
-	var _log2 = _interopRequireDefault(_log);
-
-	var _utils = __webpack_require__(2);
-
-	var _lodash = __webpack_require__(10);
-
-	var _lodash2 = _interopRequireDefault(_lodash);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var slice = Array.prototype.slice;
-
-	var eventSplitter = /\s+/;
-
-	var eventsApi = function eventsApi(obj, action, name, rest) {
-	  if (!name) {
-	    return true;
-	  }
-
-	  // Handle event maps.
-	  if ((typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
-	    for (var key in name) {
-	      obj[action].apply(obj, [key, name[key]].concat(rest));
-	    }
-	    return false;
-	  }
-
-	  // Handle space separated event names.
-	  if (eventSplitter.test(name)) {
-	    var names = name.split(eventSplitter);
-	    for (var i = 0, l = names.length; i < l; i++) {
-	      obj[action].apply(obj, [names[i]].concat(rest));
-	    }
-	    return false;
-	  }
-
-	  return true;
-	};
-
-	var triggerEvents = function triggerEvents(events, args, klass, name) {
-	  var ev = void 0,
-	      i = -1;
-	  var l = events.length,
-	      a1 = args[0],
-	      a2 = args[1],
-	      a3 = args[2];
-	  run();
-
-	  function run() {
-	    try {
-	      switch (args.length) {
-	        case 0:
-	          while (++i < l) {
-	            (ev = events[i]).callback.call(ev.ctx);
-	          }return;
-	        case 1:
-	          while (++i < l) {
-	            (ev = events[i]).callback.call(ev.ctx, a1);
-	          }return;
-	        case 2:
-	          while (++i < l) {
-	            (ev = events[i]).callback.call(ev.ctx, a1, a2);
-	          }return;
-	        case 3:
-	          while (++i < l) {
-	            (ev = events[i]).callback.call(ev.ctx, a1, a2, a3);
-	          }return;
-	        default:
-	          while (++i < l) {
-	            (ev = events[i]).callback.apply(ev.ctx, args);
-	          }return;
-	      }
-	    } catch (exception) {
-	      _log2.default.error.apply(_log2.default, [klass, 'error on event', name, 'trigger', '-', exception]);
-	      run();
-	    }
-	  }
-	};
-
-	/**
-	 * @class Events
-	 * @constructor
-	 * @module base
-	 */
-
-	var Events = function () {
-	  function Events() {
-	    _classCallCheck(this, Events);
-	  }
-
-	  /**
-	   * listen to an event indefinitely, if you want to stop you need to call `off`
-	   * @method on
-	   * @param {String} name
-	   * @param {Function} callback
-	   * @param {Object} context
-	   */
-	  Events.prototype.on = function on(name, callback, context) {
-	    if (!eventsApi(this, 'on', name, [callback, context]) || !callback) {
-	      return this;
-	    }
-	    this._events || (this._events = {});
-	    var events = this._events[name] || (this._events[name] = []);
-	    events.push({ callback: callback, context: context, ctx: context || this });
-	    return this;
-	  };
-
-	  /**
-	   * listen to an event only once
-	   * @method once
-	   * @param {String} name
-	   * @param {Function} callback
-	   * @param {Object} context
-	   */
-
-
-	  Events.prototype.once = function once(name, callback, context) {
-	    if (!eventsApi(this, 'once', name, [callback, context]) || !callback) {
-	      return this;
-	    }
-	    var self = this;
-	    var once = (0, _lodash2.default)(function () {
-	      self.off(name, once);
-	      callback.apply(this, arguments);
-	    });
-	    once._callback = callback;
-	    return this.on(name, once, context);
-	  };
-
-	  /**
-	   * stop listening to an event
-	   * @method off
-	   * @param {String} name
-	   * @param {Function} callback
-	   * @param {Object} context
-	   */
-
-
-	  Events.prototype.off = function off(name, callback, context) {
-	    var retain = void 0,
-	        ev = void 0,
-	        events = void 0,
-	        names = void 0,
-	        i = void 0,
-	        l = void 0,
-	        j = void 0,
-	        k = void 0;
-	    if (!this._events || !eventsApi(this, 'off', name, [callback, context])) {
-	      return this;
-	    }
-	    if (!name && !callback && !context) {
-	      this._events = void 0;
-	      return this;
-	    }
-	    names = name ? [name] : Object.keys(this._events);
-	    // jshint maxdepth:5
-	    for (i = 0, l = names.length; i < l; i++) {
-	      name = names[i];
-	      events = this._events[name];
-	      if (events) {
-	        this._events[name] = retain = [];
-	        if (callback || context) {
-	          for (j = 0, k = events.length; j < k; j++) {
-	            ev = events[j];
-	            if (callback && callback !== ev.callback && callback !== ev.callback._callback || context && context !== ev.context) {
-	              retain.push(ev);
-	            }
-	          }
-	        }
-	        if (!retain.length) {
-	          delete this._events[name];
-	        }
-	      }
-	    }
-	    return this;
-	  };
-
-	  /**
-	   * triggers an event given its `name`
-	   * @method trigger
-	   * @param {String} name
-	   */
-
-
-	  Events.prototype.trigger = function trigger(name) {
-	    var klass = this.name || this.constructor.name;
-	    _log2.default.debug.apply(_log2.default, [klass].concat(Array.prototype.slice.call(arguments)));
-	    if (!this._events) {
-	      return this;
-	    }
-	    var args = slice.call(arguments, 1);
-	    if (!eventsApi(this, 'trigger', name, args)) {
-	      return this;
-	    }
-	    var events = this._events[name];
-	    var allEvents = this._events.all;
-	    if (events) {
-	      triggerEvents(events, args, klass, name);
-	    }
-	    if (allEvents) {
-	      triggerEvents(allEvents, arguments, klass, name);
-	    }
-	    return this;
-	  };
-
-	  /**
-	   * stop listening an event for a given object
-	   * @method stopListening
-	   * @param {Object} obj
-	   * @param {String} name
-	   * @param {Function} callback
-	   */
-
-
-	  Events.prototype.stopListening = function stopListening(obj, name, callback) {
-	    var listeningTo = this._listeningTo;
-	    if (!listeningTo) {
-	      return this;
-	    }
-	    var remove = !name && !callback;
-	    if (!callback && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
-	      callback = this;
-	    }
-	    if (obj) {
-	      (listeningTo = {})[obj._listenId] = obj;
-	    }
-	    for (var id in listeningTo) {
-	      obj = listeningTo[id];
-	      obj.off(name, callback, this);
-	      if (remove || Object.keys(obj._events).length === 0) {
-	        delete this._listeningTo[id];
-	      }
-	    }
-	    return this;
-	  };
-
-	  return Events;
-	}();
-
-	/**
-	 * listen to an event indefinitely for a given `obj`
-	 * @method listenTo
-	 * @param {Object} obj
-	 * @param {String} name
-	 * @param {Function} callback
-	 * @param {Object} context
-	 * @example
-	 * ```javascript
-	 * this.listenTo(this.core.playback, Events.PLAYBACK_PAUSE, this.callback)
-	 * ```
-	 */
-	/**
-	 * listen to an event once for a given `obj`
-	 * @method listenToOnce
-	 * @param {Object} obj
-	 * @param {String} name
-	 * @param {Function} callback
-	 * @param {Object} context
-	 * @example
-	 * ```javascript
-	 * this.listenToOnce(this.core.playback, Events.PLAYBACK_PAUSE, this.callback)
-	 * ```
-	 */
-
-
-	exports.default = Events;
-	var listenMethods = { listenTo: 'on', listenToOnce: 'once' };
-
-	Object.keys(listenMethods).forEach(function (method) {
-	  Events.prototype[method] = function (obj, name, callback) {
-	    var listeningTo = this._listeningTo || (this._listeningTo = {});
-	    var id = obj._listenId || (obj._listenId = (0, _utils.uniqueId)('l'));
-	    listeningTo[id] = obj;
-	    if (!callback && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
-	      callback = this;
-	    }
-	    obj[listenMethods[method]](name, callback, this);
-	    return this;
-	  };
-	});
-
-	// PLAYER EVENTS
-	/**
-	 * Fired when the player is ready on startup
-	 *
-	 * @event PLAYER_READY
-	 */
-	Events.PLAYER_READY = 'ready';
-	/**
-	 * Fired when player resizes
-	 *
-	 * @event PLAYER_RESIZE
-	 * @param {Object} currentSize an object with the current size
-	 */
-	Events.PLAYER_RESIZE = 'resize';
-	/**
-	 * Fired when player changes its fullscreen state
-	 *
-	 * @event PLAYER_FULLSCREEN
-	 * @param {Boolean} whether or not the player is on fullscreen mode
-	 */
-	Events.PLAYER_FULLSCREEN = 'fullscreen';
-	/**
-	 * Fired when player starts to play
-	 *
-	 * @event PLAYER_PLAY
-	 */
-	Events.PLAYER_PLAY = 'play';
-	/**
-	 * Fired when player pauses
-	 *
-	 * @event PLAYER_PAUSE
-	 */
-	Events.PLAYER_PAUSE = 'pause';
-	/**
-	 * Fired when player stops
-	 *
-	 * @event PLAYER_STOP
-	 */
-	Events.PLAYER_STOP = 'stop';
-	/**
-	 * Fired when player ends the video
-	 *
-	 * @event PLAYER_ENDED
-	 */
-	Events.PLAYER_ENDED = 'ended';
-	/**
-	 * Fired when player seeks the video
-	 *
-	 * @event PLAYER_SEEK
-	 * @param {Number} time the current time in seconds
-	 */
-	Events.PLAYER_SEEK = 'seek';
-	/**
-	 * Fired when player receives an error
-	 *
-	 * @event PLAYER_ERROR
-	 * @param {Object} error the error
-	 */
-	Events.PLAYER_ERROR = 'error';
-	/**
-	 * Fired when the time is updated on player
-	 *
-	 * @event PLAYER_TIMEUPDATE
-	 * @param {Object} progress Data
-	 * progress object
-	 * @param {Number} [progress.current]
-	 * current time
-	 * @param {Number} [progress.total]
-	 * total time
-	 */
-	Events.PLAYER_TIMEUPDATE = 'timeupdate';
-	/**
-	 * Fired when player updates its volume
-	 *
-	 * @event PLAYER_VOLUMEUPDATE
-	 * @param {Number} volume the current volume
-	 */
-	Events.PLAYER_VOLUMEUPDATE = 'volumeupdate';
-
-	// Playback Events
-	/**
-	 * Fired when the playback is downloading the media
-	 *
-	 * @event PLAYBACK_PROGRESS
-	 * @param progress {Object}
-	 * Data progress object
-	 * @param [progress.start] {Number}
-	 * start position of buffered content at current position
-	 * @param [progress.current] {Number}
-	 * end position of buffered content at current position
-	 * @param [progress.total] {Number}
-	 * total content to be downloaded
-	 * @param buffered {Array}
-	 * array of buffered segments ({start, end}). [Only for supported playbacks]
-	 */
-	Events.PLAYBACK_PROGRESS = 'playback:progress';
-	/**
-	 * Fired when the time is updated on playback
-	 *
-	 * @event PLAYBACK_TIMEUPDATE
-	 * @param {Object} progress Data
-	 * progress object
-	 * @param {Number} [progress.current]
-	 * current time
-	 * @param {Number} [progress.total]
-	 * total time
-	 */
-	Events.PLAYBACK_TIMEUPDATE = 'playback:timeupdate';
-	/**
-	 * Fired when playback is ready
-	 *
-	 * @event PLAYBACK_READY
-	 */
-	Events.PLAYBACK_READY = 'playback:ready';
-	/**
-	 * Fired when the playback starts having to buffer because
-	 * playback can currently not be smooth.
-	 *
-	 * This corresponds to the playback `buffering` property being
-	 * `true`.
-	 *
-	 * @event PLAYBACK_BUFFERING
-	 */
-	Events.PLAYBACK_BUFFERING = 'playback:buffering';
-	/**
-	 * Fired when the playback has enough in the buffer to be
-	 * able to play smoothly, after previously being unable to
-	 * do this.
-	 *
-	 * This corresponds to the playback `buffering` property being
-	 * `false`.
-	 *
-	 * @event PLAYBACK_BUFFERFULL
-	 */
-	Events.PLAYBACK_BUFFERFULL = 'playback:bufferfull';
-	/**
-	 * Fired when playback changes any settings (volume, seek and etc)
-	 *
-	 * @event PLAYBACK_SETTINGSUPDATE
-	 */
-	Events.PLAYBACK_SETTINGSUPDATE = 'playback:settingsupdate';
-	/**
-	 * Fired when playback loaded its metadata
-	 *
-	 * @event PLAYBACK_LOADEDMETADATA
-	 * @param {Object} metadata Data
-	 * settings object
-	 * @param {Number} [metadata.duration]
-	 * the playback duration
-	 * @param {Object} [metadata.data]
-	 * extra meta data
-	 */
-	Events.PLAYBACK_LOADEDMETADATA = 'playback:loadedmetadata';
-	/**
-	 * Fired when playback updates its video quality
-	 *
-	 * @event PLAYBACK_HIGHDEFINITIONUPDATE
-	 * @param {Boolean} isHD
-	 * true when is on HD, false otherwise
-	 */
-	Events.PLAYBACK_HIGHDEFINITIONUPDATE = 'playback:highdefinitionupdate';
-	/**
-	 * Fired when playback updates its bitrate
-	 *
-	 * @event PLAYBACK_BITRATE
-	 * @param {Object} bitrate Data
-	 * bitrate object
-	 * @param {Number} [bitrate.bandwidth]
-	 * bitrate bandwidth when it's available
-	 * @param {Number} [bitrate.width]
-	 * playback width (ex: 720, 640, 1080)
-	 * @param {Number} [bitrate.height]
-	 * playback height (ex: 240, 480, 720)
-	 * @param {Number} [bitrate.level]
-	 * playback level when it's available, it could be just a map for width (0 => 240, 1 => 480, 2 => 720)
-	 */
-	Events.PLAYBACK_BITRATE = 'playback:bitrate';
-	/**
-	 * Fired when the playback has its levels
-	 *
-	 * @event PLAYBACK_LEVELS_AVAILABLE
-	 * @param {Array} levels
-	 * the ordered levels, each one with the following format `{id: 1, label: '500kbps'}` ps: id should be a number >= 0
-	 * @param {Number} initial
-	 * the initial level otherwise -1 (AUTO)
-	 */
-	Events.PLAYBACK_LEVELS_AVAILABLE = 'playback:levels:available';
-	/**
-	 * Fired when the playback starts to switch level
-	 *
-	 * @event PLAYBACK_LEVEL_SWITCH_START
-	 *
-	 */
-	Events.PLAYBACK_LEVEL_SWITCH_START = 'playback:levels:switch:start';
-	/**
-	 * Fired when the playback ends the level switch
-	 *
-	 * @event PLAYBACK_LEVEL_SWITCH_END
-	 *
-	 */
-	Events.PLAYBACK_LEVEL_SWITCH_END = 'playback:levels:switch:end';
-
-	/**
-	 * Fired when playback internal state changes
-	 *
-	 * @event PLAYBACK_PLAYBACKSTATE
-	 * @param {Object} state Data
-	 * state object
-	 * @param {String} [state.type]
-	 * the playback type
-	 */
-	Events.PLAYBACK_PLAYBACKSTATE = 'playback:playbackstate';
-	/**
-	 * Fired when DVR becomes enabled/disabled.
-	 *
-	 * @event PLAYBACK_DVR
-	 * @param {boolean} state true if dvr enabled
-	 */
-	Events.PLAYBACK_DVR = 'playback:dvr';
-	// TODO doc
-	Events.PLAYBACK_MEDIACONTROL_DISABLE = 'playback:mediacontrol:disable';
-	// TODO doc
-	Events.PLAYBACK_MEDIACONTROL_ENABLE = 'playback:mediacontrol:enable';
-	/**
-	 * Fired when the media for a playback ends.
-	 *
-	 * @event PLAYBACK_ENDED
-	 * @param {String} name the name of the playback
-	 */
-	Events.PLAYBACK_ENDED = 'playback:ended';
-	/**
-	 * Fired when user requests `play()`
-	 *
-	 * @event PLAYBACK_PLAY_INTENT
-	 */
-	Events.PLAYBACK_PLAY_INTENT = 'playback:play:intent';
-	/**
-	 * Fired when the media for a playback starts playing.
-	 * This is not necessarily when the user requests `play()`
-	 * The media may have to buffer first.
-	 * I.e. `isPlaying()` might return `true` before this event is fired,
-	 * because `isPlaying()` represents the intended state.
-	 *
-	 * @event PLAYBACK_PLAY
-	 */
-	Events.PLAYBACK_PLAY = 'playback:play';
-	/**
-	 * Fired when the media for a playback pauses.
-	 *
-	 * @event PLAYBACK_PAUSE
-	 */
-	Events.PLAYBACK_PAUSE = 'playback:pause';
-	/**
-	 * Fired when the media for a playback is stopped.
-	 *
-	 * @event PLAYBACK_STOP
-	 */
-	Events.PLAYBACK_STOP = 'playback:stop';
-	/**
-	 * Fired if an error occurs in the playback.
-	 *
-	 * @event PLAYBACK_ERROR
-	 * @param {Object} error An object containing the error details
-	 * @param {String} name Playback name
-	 */
-	Events.PLAYBACK_ERROR = 'playback:error';
-	// TODO doc
-	Events.PLAYBACK_STATS_ADD = 'playback:stats:add';
-	// TODO doc
-	Events.PLAYBACK_FRAGMENT_LOADED = 'playback:fragment:loaded';
-	// TODO doc
-	Events.PLAYBACK_LEVEL_SWITCH = 'playback:level:switch';
-
-	/**
-	 * Fired when the options were changed for the core
-	 *
-	 * @event CORE_OPTIONS_CHANGE
-	 */
-	Events.CORE_OPTIONS_CHANGE = 'core:options:change';
-	/**
-	 * Fired after creating containers, when the core is ready
-	 *
-	 * @event CORE_READY
-	 */
-	Events.CORE_READY = 'core:ready';
-	/**
-	 * Fired when the fullscreen state change
-	 *
-	 * @param {Boolean} whether or not the player is on fullscreen mode
-	 * @event CORE_READY
-	 */
-	Events.CORE_FULLSCREEN = 'core:fullscreen';
-
-	// Container Events
-	/**
-	 * Fired when the container internal state changes
-	 *
-	 * @event CONTAINER_PLAYBACKSTATE
-	 * @param {Object} state Data
-	 * state object
-	 * @param {String} [state.type]
-	 * the playback type
-	 */
-	Events.CONTAINER_PLAYBACKSTATE = 'container:playbackstate';
-	Events.CONTAINER_PLAYBACKDVRSTATECHANGED = 'container:dvr';
-	/**
-	 * Fired when the container updates its bitrate
-	 *
-	 * @event CONTAINER_BITRATE
-	 * @param {Object} bitrate Data
-	 * bitrate object
-	 * @param {Number} [bitrate.bandwidth]
-	 * bitrate bandwidth when it's available
-	 * @param {Number} [bitrate.width]
-	 * playback width (ex: 720, 640, 1080)
-	 * @param {Number} [bitrate.height]
-	 * playback height (ex: 240, 480, 720)
-	 * @param {Number} [bitrate.level]
-	 * playback level when it's available, it could be just a map for width (0 => 240, 1 => 480, 2 => 720)
-	 */
-	Events.CONTAINER_BITRATE = 'container:bitrate';
-	Events.CONTAINER_STATS_REPORT = 'container:stats:report';
-	Events.CONTAINER_DESTROYED = 'container:destroyed';
-	/**
-	 * Fired when the container is ready
-	 *
-	 * @event CONTAINER_READY
-	 */
-	Events.CONTAINER_READY = 'container:ready';
-	Events.CONTAINER_ERROR = 'container:error';
-	/**
-	 * Fired when the container loaded its metadata
-	 *
-	 * @event CONTAINER_LOADEDMETADATA
-	 * @param {Object} metadata Data
-	 * settings object
-	 * @param {Number} [metadata.duration]
-	 * the playback duration
-	 * @param {Object} [metadata.data]
-	 * extra meta data
-	 */
-	Events.CONTAINER_LOADEDMETADATA = 'container:loadedmetadata';
-	/**
-	 * Fired when the time is updated on container
-	 *
-	 * @event CONTAINER_TIMEUPDATE
-	 * @param {Object} progress Data
-	 * progress object
-	 * @param {Number} [progress.current]
-	 * current time
-	 * @param {Number} [progress.total]
-	 * total time
-	 */
-	Events.CONTAINER_TIMEUPDATE = 'container:timeupdate';
-	/**
-	 * Fired when the container is downloading the media
-	 *
-	 * @event CONTAINER_PROGRESS
-	 * @param {Object} progress Data
-	 * progress object
-	 * @param {Number} [progress.start]
-	 * initial downloaded content
-	 * @param {Number} [progress.current]
-	 * current dowloaded content
-	 * @param {Number} [progress.total]
-	 * total content to be downloaded
-	 */
-	Events.CONTAINER_PROGRESS = 'container:progress';
-	Events.CONTAINER_PLAY = 'container:play';
-	Events.CONTAINER_STOP = 'container:stop';
-	Events.CONTAINER_PAUSE = 'container:pause';
-	Events.CONTAINER_ENDED = 'container:ended';
-	Events.CONTAINER_CLICK = 'container:click';
-	Events.CONTAINER_DBLCLICK = 'container:dblclick';
-	Events.CONTAINER_CONTEXTMENU = 'container:contextmenu';
-	Events.CONTAINER_MOUSE_ENTER = 'container:mouseenter';
-	Events.CONTAINER_MOUSE_LEAVE = 'container:mouseleave';
-	/**
-	 * Fired when the container seeks the video
-	 *
-	 * @event CONTAINER_SEEK
-	 * @param {Number} time the current time in seconds
-	 */
-	Events.CONTAINER_SEEK = 'container:seek';
-	Events.CONTAINER_VOLUME = 'container:volume';
-	Events.CONTAINER_FULLSCREEN = 'container:fullscreen';
-	/**
-	 * Fired when container is buffering
-	 *
-	 * @event CONTAINER_STATE_BUFFERING
-	 */
-	Events.CONTAINER_STATE_BUFFERING = 'container:state:buffering';
-	/**
-	 * Fired when the container filled the buffer
-	 *
-	 * @event CONTAINER_STATE_BUFFERFULL
-	 */
-	Events.CONTAINER_STATE_BUFFERFULL = 'container:state:bufferfull';
-	/**
-	 * Fired when the container changes any settings (volume, seek and etc)
-	 *
-	 * @event CONTAINER_SETTINGSUPDATE
-	 */
-	Events.CONTAINER_SETTINGSUPDATE = 'container:settingsupdate';
-	/**
-	 * Fired when container updates its video quality
-	 *
-	 * @event CONTAINER_HIGHDEFINITIONUPDATE
-	 * @param {Boolean} isHD
-	 * true when is on HD, false otherwise
-	 */
-	Events.CONTAINER_HIGHDEFINITIONUPDATE = 'container:highdefinitionupdate';
-
-	/**
-	 * Fired when the media control shows
-	 *
-	 * @event CONTAINER_MEDIACONTROL_SHOW
-	 */
-	Events.CONTAINER_MEDIACONTROL_SHOW = 'container:mediacontrol:show';
-	/**
-	 * Fired when the media control hides
-	 *
-	 * @event CONTAINER_MEDIACONTROL_HIDE
-	 */
-	Events.CONTAINER_MEDIACONTROL_HIDE = 'container:mediacontrol:hide';
-
-	Events.CONTAINER_MEDIACONTROL_DISABLE = 'container:mediacontrol:disable';
-	Events.CONTAINER_MEDIACONTROL_ENABLE = 'container:mediacontrol:enable';
-	Events.CONTAINER_STATS_ADD = 'container:stats:add';
-	/**
-	 * Fired when the options were changed for the container
-	 *
-	 * @event CONTAINER_OPTIONS_CHANGE
-	 */
-	Events.CONTAINER_OPTIONS_CHANGE = 'container:options:change';
-
-	// MediaControl Events
-	Events.MEDIACONTROL_RENDERED = 'mediacontrol:rendered';
-	/**
-	 * Fired when the player enters/exit on fullscreen
-	 *
-	 * @event MEDIACONTROL_FULLSCREEN
-	 */
-	Events.MEDIACONTROL_FULLSCREEN = 'mediacontrol:fullscreen';
-	/**
-	 * Fired when the media control shows
-	 *
-	 * @event MEDIACONTROL_SHOW
-	 */
-	Events.MEDIACONTROL_SHOW = 'mediacontrol:show';
-	/**
-	 * Fired when the media control hides
-	 *
-	 * @event MEDIACONTROL_HIDE
-	 */
-	Events.MEDIACONTROL_HIDE = 'mediacontrol:hide';
-	/**
-	 * Fired when mouse enters on the seekbar
-	 *
-	 * @event MEDIACONTROL_MOUSEMOVE_SEEKBAR
-	 * @param {Object} event
-	 * the javascript event
-	 */
-	Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR = 'mediacontrol:mousemove:seekbar';
-	/**
-	 * Fired when mouse leaves the seekbar
-	 *
-	 * @event MEDIACONTROL_MOUSELEAVE_SEEKBAR
-	 * @param {Object} event
-	 * the javascript event
-	 */
-	Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR = 'mediacontrol:mouseleave:seekbar';
-	/**
-	 * Fired when the media is being played
-	 *
-	 * @event MEDIACONTROL_PLAYING
-	 */
-	Events.MEDIACONTROL_PLAYING = 'mediacontrol:playing';
-	/**
-	 * Fired when the media is not being played
-	 *
-	 * @event MEDIACONTROL_NOTPLAYING
-	 */
-	Events.MEDIACONTROL_NOTPLAYING = 'mediacontrol:notplaying';
-	/**
-	 * Fired when the container was changed
-	 *
-	 * @event MEDIACONTROL_CONTAINERCHANGED
-	 */
-	Events.MEDIACONTROL_CONTAINERCHANGED = 'mediacontrol:containerchanged';
-
-	// Core Events
-	Events.CORE_CONTAINERS_CREATED = 'core:containers:created';
-	module.exports = exports['default'];
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(7);
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _vendor = __webpack_require__(8);
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	var BOLD = 'font-weight: bold; font-size: 13px;';
-	var INFO = 'color: #006600;' + BOLD;
-	var DEBUG = 'color: #0000ff;' + BOLD;
-	var WARN = 'color: #ff8000;' + BOLD;
-	var ERROR = 'color: #ff0000;' + BOLD;
-
-	var LEVEL_DEBUG = 0;
-	var LEVEL_INFO = 1;
-	var LEVEL_WARN = 2;
-	var LEVEL_ERROR = 3;
-	var LEVEL_DISABLED = LEVEL_ERROR;
-
-	var COLORS = [DEBUG, INFO, WARN, ERROR, ERROR];
-	var DESCRIPTIONS = ['debug', 'info', 'warn', 'error', 'disabled'];
-
-	var Log = function () {
-	  function Log() {
-	    var _this = this;
-
-	    var level = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : LEVEL_INFO;
-	    var offLevel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : LEVEL_DISABLED;
-
-	    _classCallCheck(this, Log);
-
-	    this.kibo = new _vendor.Kibo();
-	    this.kibo.down(['ctrl shift d'], function () {
-	      return _this.onOff();
-	    });
-	    this.BLACKLIST = ['timeupdate', 'playback:timeupdate', 'playback:progress', 'container:hover', 'container:timeupdate', 'container:progress'];
-	    this.level = level;
-	    this.offLevel = offLevel;
-	  }
-
-	  Log.prototype.debug = function debug(klass) {
-	    this.log(klass, LEVEL_DEBUG, Array.prototype.slice.call(arguments, 1));
-	  };
-
-	  Log.prototype.info = function info(klass) {
-	    this.log(klass, LEVEL_INFO, Array.prototype.slice.call(arguments, 1));
-	  };
-
-	  Log.prototype.warn = function warn(klass) {
-	    this.log(klass, LEVEL_WARN, Array.prototype.slice.call(arguments, 1));
-	  };
-
-	  Log.prototype.error = function error(klass) {
-	    this.log(klass, LEVEL_ERROR, Array.prototype.slice.call(arguments, 1));
-	  };
-
-	  Log.prototype.onOff = function onOff() {
-	    if (this.level === this.offLevel) {
-	      this.level = this.previousLevel;
-	    } else {
-	      this.previousLevel = this.level;
-	      this.level = this.offLevel;
-	    }
-	    // handle instances where console.log is unavailable
-	    if (window.console && window.console.log) {
-	      window.console.log('%c[Clappr.Log] set log level to ' + DESCRIPTIONS[this.level], WARN);
-	    }
-	  };
-
-	  Log.prototype.level = function level(newLevel) {
-	    this.level = newLevel;
-	  };
-
-	  Log.prototype.log = function log(klass, level, message) {
-	    if (this.BLACKLIST.indexOf(message[0]) >= 0) return;
-	    if (level < this.level) return;
-
-	    if (!message) {
-	      message = klass;
-	      klass = null;
-	    }
-	    var color = COLORS[level];
-	    var klassDescription = '';
-	    if (klass) {
-	      klassDescription = '[' + klass + ']';
-	    }
-	    if (window.console && window.console.log) {
-	      window.console.log.apply(console, ['%c[' + DESCRIPTIONS[level] + ']' + klassDescription, color].concat(message));
-	    }
-	  };
-
-	  return Log;
-	}();
-
-	exports.default = Log;
-
-
-	Log.LEVEL_DEBUG = LEVEL_DEBUG;
-	Log.LEVEL_INFO = LEVEL_INFO;
-	Log.LEVEL_WARN = LEVEL_WARN;
-	Log.LEVEL_ERROR = LEVEL_ERROR;
-
-	Log.getInstance = function () {
-	  if (this._instance === undefined) {
-	    this._instance = new this();
-	    this._instance.previousLevel = this._instance.level;
-	    this._instance.level = this._instance.offLevel;
-	  }
-	  return this._instance;
-	};
-
-	Log.setLevel = function (level) {
-	  this.getInstance().level = level;
-	};
-
-	Log.debug = function () {
-	  this.getInstance().debug.apply(this.getInstance(), arguments);
-	};
-	Log.info = function () {
-	  this.getInstance().info.apply(this.getInstance(), arguments);
-	};
-	Log.warn = function () {
-	  this.getInstance().warn.apply(this.getInstance(), arguments);
-	};
-	Log.error = function () {
-	  this.getInstance().error.apply(this.getInstance(), arguments);
-	};
-	module.exports = exports['default'];
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _kibo = __webpack_require__(9);
-
-	var _kibo2 = _interopRequireDefault(_kibo);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	exports.default = { Kibo: _kibo2.default };
-	module.exports = exports['default'];
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	/* eslint-disable */
-	// Kibo is released under the MIT License. Copyright (c) 2013 marquete.
-	// see https://github.com/marquete/kibo
-
-	var Kibo = function Kibo(element) {
-	  this.element = element || window.document;
-	  this.initialize();
-	};
-
-	Kibo.KEY_NAMES_BY_CODE = {
-	  8: 'backspace', 9: 'tab', 13: 'enter',
-	  16: 'shift', 17: 'ctrl', 18: 'alt',
-	  20: 'caps_lock',
-	  27: 'esc',
-	  32: 'space',
-	  37: 'left', 38: 'up', 39: 'right', 40: 'down',
-	  48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
-	  65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j',
-	  75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't',
-	  85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z', 112: 'f1', 113: 'f2', 114: 'f3',
-	  115: 'f4', 116: 'f5', 117: 'f6', 118: 'f7', 119: 'f8', 120: 'f9', 121: 'f10', 122: 'f11', 123: 'f12'
-	};
-
-	Kibo.KEY_CODES_BY_NAME = {};
-	(function () {
-	  for (var key in Kibo.KEY_NAMES_BY_CODE) {
-	    if (Object.prototype.hasOwnProperty.call(Kibo.KEY_NAMES_BY_CODE, key)) {
-	      Kibo.KEY_CODES_BY_NAME[Kibo.KEY_NAMES_BY_CODE[key]] = +key;
-	    }
-	  }
-	})();
-
-	Kibo.MODIFIERS = ['shift', 'ctrl', 'alt'];
-
-	Kibo.registerEvent = function () {
-	  if (document.addEventListener) {
-	    return function (element, eventName, func) {
-	      element.addEventListener(eventName, func, false);
-	    };
-	  } else if (document.attachEvent) {
-	    return function (element, eventName, func) {
-	      element.attachEvent('on' + eventName, func);
-	    };
-	  }
-	}();
-
-	Kibo.unregisterEvent = function () {
-	  if (document.removeEventListener) {
-	    return function (element, eventName, func) {
-	      element.removeEventListener(eventName, func, false);
-	    };
-	  } else if (document.detachEvent) {
-	    return function (element, eventName, func) {
-	      element.detachEvent('on' + eventName, func);
-	    };
-	  }
-	}();
-
-	Kibo.stringContains = function (string, substring) {
-	  return string.indexOf(substring) !== -1;
-	};
-
-	Kibo.neatString = function (string) {
-	  return string.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
-	};
-
-	Kibo.capitalize = function (string) {
-	  return string.toLowerCase().replace(/^./, function (match) {
-	    return match.toUpperCase();
-	  });
-	};
-
-	Kibo.isString = function (what) {
-	  return Kibo.stringContains(Object.prototype.toString.call(what), 'String');
-	};
-
-	Kibo.arrayIncludes = function () {
-	  if (Array.prototype.indexOf) {
-	    return function (haystack, needle) {
-	      return haystack.indexOf(needle) !== -1;
-	    };
-	  } else {
-	    return function (haystack, needle) {
-	      for (var i = 0; i < haystack.length; i++) {
-	        if (haystack[i] === needle) {
-	          return true;
-	        }
-	      }
-	      return false;
-	    };
-	  }
-	}();
-
-	Kibo.extractModifiers = function (keyCombination) {
-	  var modifiers, i;
-	  modifiers = [];
-	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
-	    if (Kibo.stringContains(keyCombination, Kibo.MODIFIERS[i])) {
-	      modifiers.push(Kibo.MODIFIERS[i]);
-	    }
-	  }
-	  return modifiers;
-	};
-
-	Kibo.extractKey = function (keyCombination) {
-	  var keys, i;
-	  keys = Kibo.neatString(keyCombination).split(' ');
-	  for (i = 0; i < keys.length; i++) {
-	    if (!Kibo.arrayIncludes(Kibo.MODIFIERS, keys[i])) {
-	      return keys[i];
-	    }
-	  }
-	};
-
-	Kibo.modifiersAndKey = function (keyCombination) {
-	  var result, key;
-
-	  if (Kibo.stringContains(keyCombination, 'any')) {
-	    return Kibo.neatString(keyCombination).split(' ').slice(0, 2).join(' ');
-	  }
-
-	  result = Kibo.extractModifiers(keyCombination);
-
-	  key = Kibo.extractKey(keyCombination);
-	  if (key && !Kibo.arrayIncludes(Kibo.MODIFIERS, key)) {
-	    result.push(key);
-	  }
-
-	  return result.join(' ');
-	};
-
-	Kibo.keyName = function (keyCode) {
-	  return Kibo.KEY_NAMES_BY_CODE[keyCode + ''];
-	};
-
-	Kibo.keyCode = function (keyName) {
-	  return +Kibo.KEY_CODES_BY_NAME[keyName];
-	};
-
-	Kibo.prototype.initialize = function () {
-	  var i,
-	      that = this;
-
-	  this.lastKeyCode = -1;
-	  this.lastModifiers = {};
-	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
-	    this.lastModifiers[Kibo.MODIFIERS[i]] = false;
-	  }
-
-	  this.keysDown = { any: [] };
-	  this.keysUp = { any: [] };
-	  this.downHandler = this.handler('down');
-	  this.upHandler = this.handler('up');
-
-	  Kibo.registerEvent(this.element, 'keydown', this.downHandler);
-	  Kibo.registerEvent(this.element, 'keyup', this.upHandler);
-	  Kibo.registerEvent(window, 'unload', function unloader() {
-	    Kibo.unregisterEvent(that.element, 'keydown', that.downHandler);
-	    Kibo.unregisterEvent(that.element, 'keyup', that.upHandler);
-	    Kibo.unregisterEvent(window, 'unload', unloader);
-	  });
-	};
-
-	Kibo.prototype.handler = function (upOrDown) {
-	  var that = this;
-	  return function (e) {
-	    var i, registeredKeys, lastModifiersAndKey;
-
-	    e = e || window.event;
-
-	    that.lastKeyCode = e.keyCode;
-	    for (i = 0; i < Kibo.MODIFIERS.length; i++) {
-	      that.lastModifiers[Kibo.MODIFIERS[i]] = e[Kibo.MODIFIERS[i] + 'Key'];
-	    }
-	    if (Kibo.arrayIncludes(Kibo.MODIFIERS, Kibo.keyName(that.lastKeyCode))) {
-	      that.lastModifiers[Kibo.keyName(that.lastKeyCode)] = true;
-	    }
-
-	    registeredKeys = that['keys' + Kibo.capitalize(upOrDown)];
-
-	    for (i = 0; i < registeredKeys.any.length; i++) {
-	      if (registeredKeys.any[i](e) === false && e.preventDefault) {
-	        e.preventDefault();
-	      }
-	    }
-
-	    lastModifiersAndKey = that.lastModifiersAndKey();
-	    if (registeredKeys[lastModifiersAndKey]) {
-	      for (i = 0; i < registeredKeys[lastModifiersAndKey].length; i++) {
-	        if (registeredKeys[lastModifiersAndKey][i](e) === false && e.preventDefault) {
-	          e.preventDefault();
-	        }
-	      }
-	    }
-	  };
-	};
-
-	Kibo.prototype.registerKeys = function (upOrDown, newKeys, func) {
-	  var i,
-	      keys,
-	      registeredKeys = this['keys' + Kibo.capitalize(upOrDown)];
-
-	  if (Kibo.isString(newKeys)) {
-	    newKeys = [newKeys];
-	  }
-
-	  for (i = 0; i < newKeys.length; i++) {
-	    keys = newKeys[i];
-	    keys = Kibo.modifiersAndKey(keys + '');
-
-	    if (registeredKeys[keys]) {
-	      registeredKeys[keys].push(func);
-	    } else {
-	      registeredKeys[keys] = [func];
-	    }
-	  }
-
-	  return this;
-	};
-
-	// jshint maxdepth:5
-	Kibo.prototype.unregisterKeys = function (upOrDown, newKeys, func) {
-	  var i,
-	      j,
-	      keys,
-	      registeredKeys = this['keys' + Kibo.capitalize(upOrDown)];
-
-	  if (Kibo.isString(newKeys)) {
-	    newKeys = [newKeys];
-	  }
-
-	  for (i = 0; i < newKeys.length; i++) {
-	    keys = newKeys[i];
-	    keys = Kibo.modifiersAndKey(keys + '');
-
-	    if (func === null) {
-	      delete registeredKeys[keys];
-	    } else {
-	      if (registeredKeys[keys]) {
-	        for (j = 0; j < registeredKeys[keys].length; j++) {
-	          if (String(registeredKeys[keys][j]) === String(func)) {
-	            registeredKeys[keys].splice(j, 1);
-	            break;
-	          }
-	        }
-	      }
-	    }
-	  }
-
-	  return this;
-	};
-
-	Kibo.prototype.off = function (keys) {
-	  return this.unregisterKeys('down', keys, null);
-	};
-
-	Kibo.prototype.delegate = function (upOrDown, keys, func) {
-	  return func !== null || func !== undefined ? this.registerKeys(upOrDown, keys, func) : this.unregisterKeys(upOrDown, keys, func);
-	};
-
-	Kibo.prototype.down = function (keys, func) {
-	  return this.delegate('down', keys, func);
-	};
-
-	Kibo.prototype.up = function (keys, func) {
-	  return this.delegate('up', keys, func);
-	};
-
-	Kibo.prototype.lastKey = function (modifier) {
-	  if (!modifier) {
-	    return Kibo.keyName(this.lastKeyCode);
-	  }
-
-	  return this.lastModifiers[modifier];
-	};
-
-	Kibo.prototype.lastModifiersAndKey = function () {
-	  var result, i;
-
-	  result = [];
-	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
-	    if (this.lastKey(Kibo.MODIFIERS[i])) {
-	      result.push(Kibo.MODIFIERS[i]);
-	    }
-	  }
-
-	  if (!Kibo.arrayIncludes(result, this.lastKey())) {
-	    result.push(this.lastKey());
-	  }
-
-	  return result.join(' ');
-	};
-
-	exports.default = Kibo;
-	module.exports = exports['default'];
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	/**
-	 * lodash (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-	 * Released under MIT license <https://lodash.com/license>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 */
-
-	/** Used as the `TypeError` message for "Functions" methods. */
-	var FUNC_ERROR_TEXT = 'Expected a function';
-
-	/** Used as references for various `Number` constants. */
-	var INFINITY = 1 / 0,
-	    MAX_INTEGER = 1.7976931348623157e+308,
-	    NAN = 0 / 0;
-
-	/** `Object#toString` result references. */
-	var symbolTag = '[object Symbol]';
-
-	/** Used to match leading and trailing whitespace. */
-	var reTrim = /^\s+|\s+$/g;
-
-	/** Used to detect bad signed hexadecimal string values. */
-	var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-
-	/** Used to detect binary string values. */
-	var reIsBinary = /^0b[01]+$/i;
-
-	/** Used to detect octal string values. */
-	var reIsOctal = /^0o[0-7]+$/i;
-
-	/** Built-in method references without a dependency on `root`. */
-	var freeParseInt = parseInt;
-
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-
-	/**
-	 * Creates a function that invokes `func`, with the `this` binding and arguments
-	 * of the created function, while it's called less than `n` times. Subsequent
-	 * calls to the created function return the result of the last `func` invocation.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 3.0.0
-	 * @category Function
-	 * @param {number} n The number of calls at which `func` is no longer invoked.
-	 * @param {Function} func The function to restrict.
-	 * @returns {Function} Returns the new restricted function.
-	 * @example
-	 *
-	 * jQuery(element).on('click', _.before(5, addContactToList));
-	 * // => Allows adding up to 4 contacts to the list.
-	 */
-	function before(n, func) {
-	  var result;
-	  if (typeof func != 'function') {
-	    throw new TypeError(FUNC_ERROR_TEXT);
-	  }
-	  n = toInteger(n);
-	  return function() {
-	    if (--n > 0) {
-	      result = func.apply(this, arguments);
-	    }
-	    if (n <= 1) {
-	      func = undefined;
-	    }
-	    return result;
-	  };
-	}
-
-	/**
-	 * Creates a function that is restricted to invoking `func` once. Repeat calls
-	 * to the function return the value of the first invocation. The `func` is
-	 * invoked with the `this` binding and arguments of the created function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Function
-	 * @param {Function} func The function to restrict.
-	 * @returns {Function} Returns the new restricted function.
-	 * @example
-	 *
-	 * var initialize = _.once(createApplication);
-	 * initialize();
-	 * initialize();
-	 * // => `createApplication` is invoked once
-	 */
-	function once(func) {
-	  return before(2, func);
-	}
-
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-
-	/**
-	 * Checks if `value` is classified as a `Symbol` primitive or object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
-	 * @example
-	 *
-	 * _.isSymbol(Symbol.iterator);
-	 * // => true
-	 *
-	 * _.isSymbol('abc');
-	 * // => false
-	 */
-	function isSymbol(value) {
-	  return typeof value == 'symbol' ||
-	    (isObjectLike(value) && objectToString.call(value) == symbolTag);
-	}
-
-	/**
-	 * Converts `value` to a finite number.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.12.0
-	 * @category Lang
-	 * @param {*} value The value to convert.
-	 * @returns {number} Returns the converted number.
-	 * @example
-	 *
-	 * _.toFinite(3.2);
-	 * // => 3.2
-	 *
-	 * _.toFinite(Number.MIN_VALUE);
-	 * // => 5e-324
-	 *
-	 * _.toFinite(Infinity);
-	 * // => 1.7976931348623157e+308
-	 *
-	 * _.toFinite('3.2');
-	 * // => 3.2
-	 */
-	function toFinite(value) {
-	  if (!value) {
-	    return value === 0 ? value : 0;
-	  }
-	  value = toNumber(value);
-	  if (value === INFINITY || value === -INFINITY) {
-	    var sign = (value < 0 ? -1 : 1);
-	    return sign * MAX_INTEGER;
-	  }
-	  return value === value ? value : 0;
-	}
-
-	/**
-	 * Converts `value` to an integer.
-	 *
-	 * **Note:** This method is loosely based on
-	 * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to convert.
-	 * @returns {number} Returns the converted integer.
-	 * @example
-	 *
-	 * _.toInteger(3.2);
-	 * // => 3
-	 *
-	 * _.toInteger(Number.MIN_VALUE);
-	 * // => 0
-	 *
-	 * _.toInteger(Infinity);
-	 * // => 1.7976931348623157e+308
-	 *
-	 * _.toInteger('3.2');
-	 * // => 3
-	 */
-	function toInteger(value) {
-	  var result = toFinite(value),
-	      remainder = result % 1;
-
-	  return result === result ? (remainder ? result - remainder : result) : 0;
-	}
-
-	/**
-	 * Converts `value` to a number.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to process.
-	 * @returns {number} Returns the number.
-	 * @example
-	 *
-	 * _.toNumber(3.2);
-	 * // => 3.2
-	 *
-	 * _.toNumber(Number.MIN_VALUE);
-	 * // => 5e-324
-	 *
-	 * _.toNumber(Infinity);
-	 * // => Infinity
-	 *
-	 * _.toNumber('3.2');
-	 * // => 3.2
-	 */
-	function toNumber(value) {
-	  if (typeof value == 'number') {
-	    return value;
-	  }
-	  if (isSymbol(value)) {
-	    return NAN;
-	  }
-	  if (isObject(value)) {
-	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-	    value = isObject(other) ? (other + '') : other;
-	  }
-	  if (typeof value != 'string') {
-	    return value === 0 ? value : +value;
-	  }
-	  value = value.replace(reTrim, '');
-	  var isBinary = reIsBinary.test(value);
-	  return (isBinary || reIsOctal.test(value))
-	    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
-	    : (reIsBadHex.test(value) ? NAN : +value);
-	}
-
-	module.exports = once;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(12);
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _base_object = __webpack_require__(4);
-
-	var _base_object2 = _interopRequireDefault(_base_object);
-
-	var _core = __webpack_require__(13);
-
-	var _core2 = _interopRequireDefault(_core);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	/**
-	 * The Core Factory is responsible for instantiate the core and it's plugins.
-	 * @class CoreFactory
-	 * @constructor
-	 * @extends BaseObject
-	 * @module components
-	 */
-	var CoreFactory = function (_BaseObject) {
-	  _inherits(CoreFactory, _BaseObject);
-
-	  _createClass(CoreFactory, [{
-	    key: 'loader',
-	    get: function get() {
-	      return this.player.loader;
-	    }
-
-	    /**
-	     * it builds the core factory
-	     * @method constructor
-	     * @param {Player} player the player object
-	     */
-
-	  }]);
-
-	  function CoreFactory(player) {
-	    _classCallCheck(this, CoreFactory);
-
-	    var _this = _possibleConstructorReturn(this, _BaseObject.call(this));
-
-	    _this.player = player;
-	    _this._options = player.options;
-	    return _this;
-	  }
-
-	  /**
-	   * creates a core and its plugins
-	   * @method create
-	   * @return {Core} created core
-	   */
-
-
-	  CoreFactory.prototype.create = function create() {
-	    this.options.loader = this.loader;
-	    this.core = new _core2.default(this.options);
-	    this.addCorePlugins();
-	    this.core.createContainers(this.options);
-	    return this.core;
-	  };
-
-	  /**
-	   * given the core plugins (`loader.corePlugins`) it builds each one
-	   * @method addCorePlugins
-	   * @return {Core} the core with all plugins
-	   */
-
-
-	  CoreFactory.prototype.addCorePlugins = function addCorePlugins() {
-	    var _this2 = this;
-
-	    this.loader.corePlugins.forEach(function (Plugin) {
-	      var plugin = new Plugin(_this2.core);
-	      _this2.core.addPlugin(plugin);
-	      _this2.setupExternalInterface(plugin);
-	    });
-	    return this.core;
-	  };
-
-	  CoreFactory.prototype.setupExternalInterface = function setupExternalInterface(plugin) {
-	    var externalFunctions = plugin.getExternalInterface();
-	    for (var key in externalFunctions) {
-	      this.player[key] = externalFunctions[key].bind(plugin);
-	    }
-	  };
-
-	  return CoreFactory;
-	}(_base_object2.default);
-
-	exports.default = CoreFactory;
-	module.exports = exports['default'];
-
-/***/ },
-/* 13 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	module.exports = __webpack_require__(14);
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _utils = __webpack_require__(2);
-
-	var _events = __webpack_require__(5);
-
-	var _events2 = _interopRequireDefault(_events);
-
-	var _styler = __webpack_require__(15);
-
-	var _styler2 = _interopRequireDefault(_styler);
-
-	var _ui_object = __webpack_require__(18);
-
-	var _ui_object2 = _interopRequireDefault(_ui_object);
-
-	var _browser = __webpack_require__(3);
-
-	var _browser2 = _interopRequireDefault(_browser);
-
-	var _container_factory = __webpack_require__(20);
-
-	var _container_factory2 = _interopRequireDefault(_container_factory);
-
-	var _media_control = __webpack_require__(27);
-
-	var _media_control2 = _interopRequireDefault(_media_control);
-
-	var _mediator = __webpack_require__(30);
-
-	var _mediator2 = _interopRequireDefault(_mediator);
-
-	var _player_info = __webpack_require__(45);
-
-	var _player_info2 = _interopRequireDefault(_player_info);
-
-	var _clapprZepto = __webpack_require__(16);
-
-	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
-
-	var _style = __webpack_require__(46);
-
-	var _style2 = _interopRequireDefault(_style);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	/**
-	 * The Core is responsible to manage Containers, the mediator, MediaControl
-	 * and the player state.
-	 * @class Core
-	 * @constructor
-	 * @extends UIObject
-	 * @module components
-	 */
-	var Core = function (_UIObject) {
-	  _inherits(Core, _UIObject);
-
-	  _createClass(Core, [{
-	    key: 'events',
-	    get: function get() {
-	      return {
-	        'webkitfullscreenchange': 'handleFullscreenChange',
-	        'mousemove': 'showMediaControl',
-	        'mouseleave': 'hideMediaControl'
-	      };
-	    }
-	  }, {
-	    key: 'attributes',
-	    get: function get() {
-	      return {
-	        'data-player': '',
-	        tabindex: 9999
-	      };
-	    }
-
-	    /**
-	     * checks if the core is ready.
-	     * @property isReady
-	     * @type {Boolean} `true` if the core is ready, otherwise `false`
-	     */
-
-	  }, {
-	    key: 'isReady',
-	    get: function get() {
-	      return !!this.ready;
-	    }
-
-	    /**
-	     * The internationalization plugin.
-	     * @property i18n
-	     * @type {Strings}
-	     */
-
-	  }, {
-	    key: 'i18n',
-	    get: function get() {
-	      return this.getPlugin('strings') || { t: function t(key) {
-	          return key;
-	        } };
-	    }
-	  }]);
-
-	  function Core(options) {
-	    _classCallCheck(this, Core);
-
-	    var _this = _possibleConstructorReturn(this, _UIObject.call(this, options));
-
-	    _this.playerInfo = _player_info2.default.getInstance(options.playerId);
-	    _this.firstResize = true;
-	    _this.plugins = [];
-	    _this.containers = [];
-	    _this.setupMediaControl(null);
-	    //FIXME fullscreen api sucks
-	    _this._boundFullscreenHandler = function () {
-	      return _this.handleFullscreenChange();
-	    };
-	    (0, _clapprZepto2.default)(document).bind('fullscreenchange', _this._boundFullscreenHandler);
-	    (0, _clapprZepto2.default)(document).bind('MSFullscreenChange', _this._boundFullscreenHandler);
-	    (0, _clapprZepto2.default)(document).bind('mozfullscreenchange', _this._boundFullscreenHandler);
-	    return _this;
-	  }
-
-	  Core.prototype.createContainers = function createContainers(options) {
-	    var _this2 = this;
-
-	    this.defer = _clapprZepto2.default.Deferred();
-	    this.defer.promise(this);
-	    this.containerFactory = new _container_factory2.default(options, options.loader, this.i18n);
-	    this.containerFactory.createContainers().then(function (containers) {
-	      return _this2.setupContainers(containers);
-	    }).then(function (containers) {
-	      return _this2.resolveOnContainersReady(containers);
-	    });
-	  };
-
-	  Core.prototype.updateSize = function updateSize() {
-	    if (_utils.Fullscreen.isFullscreen()) {
-	      this.setFullscreen();
-	    } else {
-	      this.setPlayerSize();
-	    }
-	  };
-
-	  Core.prototype.setFullscreen = function setFullscreen() {
-	    if (!_browser2.default.isiOS) {
-	      this.$el.addClass('fullscreen');
-	      this.$el.removeAttr('style');
-	      this.playerInfo.previousSize = { width: this.options.width, height: this.options.height };
-	      this.playerInfo.currentSize = { width: (0, _clapprZepto2.default)(window).width(), height: (0, _clapprZepto2.default)(window).height() };
-	    }
-	  };
-
-	  Core.prototype.setPlayerSize = function setPlayerSize() {
-	    this.$el.removeClass('fullscreen');
-	    this.playerInfo.currentSize = this.playerInfo.previousSize;
-	    this.playerInfo.previousSize = { width: (0, _clapprZepto2.default)(window).width(), height: (0, _clapprZepto2.default)(window).height() };
-	    this.resize(this.playerInfo.currentSize);
-	  };
-
-	  Core.prototype.resize = function resize(options) {
-	    if (!(0, _utils.isNumber)(options.height) && !(0, _utils.isNumber)(options.width)) {
-	      this.el.style.height = '' + options.height;
-	      this.el.style.width = '' + options.width;
-	    } else {
-	      this.el.style.height = options.height + 'px';
-	      this.el.style.width = options.width + 'px';
-	    }
-	    this.playerInfo.previousSize = { width: this.options.width, height: this.options.height };
-	    this.options.width = options.width;
-	    this.options.height = options.height;
-	    this.playerInfo.currentSize = options;
-	    this.triggerResize(this.playerInfo.currentSize);
-	  };
-
-	  Core.prototype.enableResizeObserver = function enableResizeObserver() {
-	    var _this3 = this;
-
-	    var checkSizeCallback = function checkSizeCallback() {
-	      if (_this3.playerInfo.computedSize.width != _this3.el.clientWidth || _this3.playerInfo.computedSize.height != _this3.el.clientHeight) {
-	        _this3.playerInfo.computedSize = { width: _this3.el.clientWidth, height: _this3.el.clientHeight };
-	        _this3.triggerResize(_this3.playerInfo.computedSize);
-	      }
-	    };
-	    this.resizeObserverInterval = setInterval(checkSizeCallback, 500);
-	  };
-
-	  Core.prototype.triggerResize = function triggerResize(newSize) {
-	    var thereWasChange = this.firstResize || this.oldHeight !== newSize.height || this.oldWidth !== newSize.width;
-	    if (thereWasChange) {
-	      _mediator2.default.trigger(this.options.playerId + ':' + _events2.default.PLAYER_RESIZE, newSize);
-	      this.oldHeight = newSize.height;
-	      this.oldWidth = newSize.width;
-	      this.firstResize = false;
-	    }
-	  };
-
-	  Core.prototype.disableResizeObserver = function disableResizeObserver() {
-	    if (this.resizeObserverInterval) clearInterval(this.resizeObserverInterval);
-	  };
-
-	  Core.prototype.resolveOnContainersReady = function resolveOnContainersReady(containers) {
-	    var _this4 = this;
-
-	    _clapprZepto2.default.when.apply(_clapprZepto2.default, containers).done(function () {
-	      _this4.defer.resolve(_this4);
-	      _this4.ready = true;
-	      _this4.trigger(_events2.default.CORE_READY);
-	    });
-	  };
-
-	  Core.prototype.addPlugin = function addPlugin(plugin) {
-	    this.plugins.push(plugin);
-	  };
-
-	  Core.prototype.hasPlugin = function hasPlugin(name) {
-	    return !!this.getPlugin(name);
-	  };
-
-	  Core.prototype.getPlugin = function getPlugin(name) {
-	    return this.plugins.filter(function (plugin) {
-	      return plugin.name === name;
-	    })[0];
-	  };
-
-	  Core.prototype.load = function load(sources, mimeType) {
-	    var _this5 = this;
-
-	    this.options.mimeType = mimeType;
-	    sources = sources && sources.constructor === Array ? sources : [sources];
-	    this.containers.forEach(function (container) {
-	      return container.destroy();
-	    });
-	    this.mediaControl.container = null;
-	    this.containerFactory.options = _clapprZepto2.default.extend(this.options, { sources: sources });
-	    this.containerFactory.createContainers().then(function (containers) {
-	      _this5.setupContainers(containers);
-	    });
-	  };
-
-	  Core.prototype.destroy = function destroy() {
-	    this.disableResizeObserver();
-	    this.containers.forEach(function (container) {
-	      return container.destroy();
-	    });
-	    this.plugins.forEach(function (plugin) {
-	      return plugin.destroy();
-	    });
-	    this.$el.remove();
-	    this.mediaControl.destroy();
-	    (0, _clapprZepto2.default)(document).unbind('fullscreenchange', this._boundFullscreenHandler);
-	    (0, _clapprZepto2.default)(document).unbind('MSFullscreenChange', this._boundFullscreenHandler);
-	    (0, _clapprZepto2.default)(document).unbind('mozfullscreenchange', this._boundFullscreenHandler);
-	  };
-
-	  Core.prototype.handleFullscreenChange = function handleFullscreenChange() {
-	    this.trigger(_events2.default.CORE_FULLSCREEN, _utils.Fullscreen.isFullscreen());
-	    this.updateSize();
-	    this.mediaControl.show();
-	  };
-
-	  Core.prototype.setMediaControlContainer = function setMediaControlContainer(container) {
-	    this.mediaControl.setContainer(container);
-	    this.mediaControl.render();
-	  };
-
-	  Core.prototype.disableMediaControl = function disableMediaControl() {
-	    this.mediaControl.disable();
-	    this.$el.removeClass('nocursor');
-	  };
-
-	  Core.prototype.enableMediaControl = function enableMediaControl() {
-	    this.mediaControl.enable();
-	  };
-
-	  Core.prototype.removeContainer = function removeContainer(container) {
-	    this.stopListening(container);
-	    this.containers = this.containers.filter(function (c) {
-	      return c !== container;
-	    });
-	  };
-
-	  Core.prototype.appendContainer = function appendContainer(container) {
-	    this.listenTo(container, _events2.default.CONTAINER_DESTROYED, this.removeContainer);
-	    this.containers.push(container);
-	  };
-
-	  Core.prototype.setupContainers = function setupContainers(containers) {
-	    containers.map(this.appendContainer.bind(this));
-	    this.trigger(_events2.default.CORE_CONTAINERS_CREATED);
-	    this.renderContainers();
-	    this.setupMediaControl(this.getCurrentContainer());
-	    this.render();
-	    this.$el.appendTo(this.options.parentElement);
-	    return this.containers;
-	  };
-
-	  Core.prototype.renderContainers = function renderContainers() {
-	    var _this6 = this;
-
-	    this.containers.map(function (container) {
-	      return _this6.el.appendChild(container.render().el);
-	    });
-	  };
-
-	  Core.prototype.createContainer = function createContainer(source, options) {
-	    var container = this.containerFactory.createContainer(source, options);
-	    this.appendContainer(container);
-	    this.el.appendChild(container.render().el);
-	    return container;
-	  };
-
-	  Core.prototype.setupMediaControl = function setupMediaControl(container) {
-	    if (this.mediaControl) {
-	      this.mediaControl.setContainer(container);
-	    } else {
-	      this.mediaControl = this.createMediaControl(_clapprZepto2.default.extend({ container: container, focusElement: this.el }, this.options));
-	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_FULLSCREEN, this.toggleFullscreen);
-	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_SHOW, this.onMediaControlShow.bind(this, true));
-	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_HIDE, this.onMediaControlShow.bind(this, false));
-	    }
-	  };
-
-	  Core.prototype.createMediaControl = function createMediaControl(options) {
-	    if (options.mediacontrol && options.mediacontrol.external) {
-	      return new options.mediacontrol.external(options).render();
-	    } else {
-	      return new _media_control2.default(options).render();
-	    }
-	  };
-
-	  Core.prototype.getCurrentContainer = function getCurrentContainer() {
-	    if (!this.mediaControl || !this.mediaControl.container) {
-	      return this.containers[0];
-	    }
-	    return this.mediaControl.container;
-	  };
-
-	  Core.prototype.getCurrentPlayback = function getCurrentPlayback() {
-	    var container = this.getCurrentContainer();
-	    return container && container.playback;
-	  };
-
-	  Core.prototype.getPlaybackType = function getPlaybackType() {
-	    var container = this.getCurrentContainer();
-	    return container && container.getPlaybackType();
-	  };
-
-	  Core.prototype.toggleFullscreen = function toggleFullscreen() {
-	    if (!_utils.Fullscreen.isFullscreen()) {
-	      _utils.Fullscreen.requestFullscreen(this.el);
-	      if (!_browser2.default.isiOS) {
-	        this.$el.addClass('fullscreen');
-	      }
-	    } else {
-	      _utils.Fullscreen.cancelFullscreen();
-	      if (!_browser2.default.isiOS) {
-	        this.$el.removeClass('fullscreen nocursor');
-	      }
-	    }
-	    this.mediaControl.show();
-	  };
-
-	  Core.prototype.showMediaControl = function showMediaControl(event) {
-	    this.mediaControl.show(event);
-	  };
-
-	  Core.prototype.hideMediaControl = function hideMediaControl() {
-	    this.mediaControl.hide(this.options.hideMediaControlDelay);
-	  };
-
-	  Core.prototype.onMediaControlShow = function onMediaControlShow(showing) {
-	    this.getCurrentContainer().trigger(showing ? _events2.default.CONTAINER_MEDIACONTROL_SHOW : _events2.default.CONTAINER_MEDIACONTROL_HIDE);
-
-	    if (showing) this.$el.removeClass('nocursor');else if (_utils.Fullscreen.isFullscreen()) this.$el.addClass('nocursor');
-	  };
-
-	  /**
-	   * enables to configure the container after its creation
-	   * @method configure
-	   * @param {Object} options all the options to change in form of a javascript object
-	   */
-
-
-	  Core.prototype.configure = function configure(options) {
-	    var _this7 = this;
-
-	    this._options = _clapprZepto2.default.extend(this._options, options);
-	    var sources = options.source || options.sources;
-
-	    if (sources) {
-	      this.load(sources, options.mimeType || this.options.mimeType);
-	    } else {
-	      this.trigger(_events2.default.CORE_OPTIONS_CHANGE);
-
-	      this.containers.forEach(function (container) {
-	        container.configure(_this7.options);
-	      });
-	    }
-	  };
-
-	  Core.prototype.render = function render() {
-	    var style = _styler2.default.getStyleFor(_style2.default, { baseUrl: this.options.baseUrl });
-	    this.$el.append(style);
-	    this.$el.append(this.mediaControl.render().el);
-
-	    this.options.width = this.options.width || this.$el.width();
-	    this.options.height = this.options.height || this.$el.height();
-	    var size = { width: this.options.width, height: this.options.height };
-	    this.playerInfo.previousSize = this.playerInfo.currentSize = this.playerInfo.computedSize = size;
-	    this.updateSize();
-
-	    this.previousSize = { width: this.$el.width(), height: this.$el.height() };
-
-	    this.enableResizeObserver();
-
-	    return this;
-	  };
-
-	  return Core;
-	}(_ui_object2.default);
-
-	exports.default = Core;
-	module.exports = exports['default'];
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _clapprZepto = __webpack_require__(16);
-
-	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
-
-	var _template = __webpack_require__(17);
-
-	var _template2 = _interopRequireDefault(_template);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	// Copyright 2014 Globo.com Player authors. All rights reserved.
-	// Use of this source code is governed by a BSD-style
-	// license that can be found in the LICENSE file.
-
-	var Styler = {
-	  getStyleFor: function getStyleFor(style) {
-	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { baseUrl: '' };
-
-	    return (0, _clapprZepto2.default)('<style class="clappr-style"></style>').html((0, _template2.default)(style.toString())(options));
-	  }
-	};
-
-	exports.default = Styler;
-	module.exports = exports['default'];
-
-/***/ },
-/* 16 */
 /***/ function(module, exports) {
 
 	/* Zepto v1.2.0 - zepto ajax callbacks deferred event ie selector - zeptojs.com/license */
@@ -5537,6 +3325,2263 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _utils = __webpack_require__(2);
+
+	var _events = __webpack_require__(6);
+
+	var _events2 = _interopRequireDefault(_events);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	/**
+	 * @class BaseObject
+	 * @constructor
+	 * @extends Events
+	 * @module base
+	 */
+	var BaseObject = function (_Events) {
+	  _inherits(BaseObject, _Events);
+
+	  _createClass(BaseObject, [{
+	    key: 'options',
+
+	    /**
+	     * returns the object options
+	     * @property options
+	     * @type Object
+	     */
+	    get: function get() {
+	      return this._options;
+	    }
+
+	    /**
+	     * @method constructor
+	     * @param {Object} options
+	     */
+
+	  }]);
+
+	  function BaseObject() {
+	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+	    _classCallCheck(this, BaseObject);
+
+	    var _this = _possibleConstructorReturn(this, _Events.call(this, options));
+
+	    _this._options = options;
+	    _this.uniqueId = (0, _utils.uniqueId)('o');
+	    return _this;
+	  }
+	  /**
+	  * a unique id prefixed with `'o'`, `o1, o232`
+	  *
+	  * @property uniqueId
+	  * @type String
+	  */
+
+
+	  return BaseObject;
+	}(_events2.default);
+
+	exports.default = BaseObject;
+	module.exports = exports['default'];
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; // Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	var _log = __webpack_require__(7);
+
+	var _log2 = _interopRequireDefault(_log);
+
+	var _utils = __webpack_require__(2);
+
+	var _lodash = __webpack_require__(11);
+
+	var _lodash2 = _interopRequireDefault(_lodash);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var slice = Array.prototype.slice;
+
+	var eventSplitter = /\s+/;
+
+	var eventsApi = function eventsApi(obj, action, name, rest) {
+	  if (!name) {
+	    return true;
+	  }
+
+	  // Handle event maps.
+	  if ((typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+	    for (var key in name) {
+	      obj[action].apply(obj, [key, name[key]].concat(rest));
+	    }
+	    return false;
+	  }
+
+	  // Handle space separated event names.
+	  if (eventSplitter.test(name)) {
+	    var names = name.split(eventSplitter);
+	    for (var i = 0, l = names.length; i < l; i++) {
+	      obj[action].apply(obj, [names[i]].concat(rest));
+	    }
+	    return false;
+	  }
+
+	  return true;
+	};
+
+	var triggerEvents = function triggerEvents(events, args, klass, name) {
+	  var ev = void 0,
+	      i = -1;
+	  var l = events.length,
+	      a1 = args[0],
+	      a2 = args[1],
+	      a3 = args[2];
+	  run();
+
+	  function run() {
+	    try {
+	      switch (args.length) {
+	        case 0:
+	          while (++i < l) {
+	            (ev = events[i]).callback.call(ev.ctx);
+	          }return;
+	        case 1:
+	          while (++i < l) {
+	            (ev = events[i]).callback.call(ev.ctx, a1);
+	          }return;
+	        case 2:
+	          while (++i < l) {
+	            (ev = events[i]).callback.call(ev.ctx, a1, a2);
+	          }return;
+	        case 3:
+	          while (++i < l) {
+	            (ev = events[i]).callback.call(ev.ctx, a1, a2, a3);
+	          }return;
+	        default:
+	          while (++i < l) {
+	            (ev = events[i]).callback.apply(ev.ctx, args);
+	          }return;
+	      }
+	    } catch (exception) {
+	      _log2.default.error.apply(_log2.default, [klass, 'error on event', name, 'trigger', '-', exception]);
+	      run();
+	    }
+	  }
+	};
+
+	/**
+	 * @class Events
+	 * @constructor
+	 * @module base
+	 */
+
+	var Events = function () {
+	  function Events() {
+	    _classCallCheck(this, Events);
+	  }
+
+	  /**
+	   * listen to an event indefinitely, if you want to stop you need to call `off`
+	   * @method on
+	   * @param {String} name
+	   * @param {Function} callback
+	   * @param {Object} context
+	   */
+	  Events.prototype.on = function on(name, callback, context) {
+	    if (!eventsApi(this, 'on', name, [callback, context]) || !callback) {
+	      return this;
+	    }
+	    this._events || (this._events = {});
+	    var events = this._events[name] || (this._events[name] = []);
+	    events.push({ callback: callback, context: context, ctx: context || this });
+	    return this;
+	  };
+
+	  /**
+	   * listen to an event only once
+	   * @method once
+	   * @param {String} name
+	   * @param {Function} callback
+	   * @param {Object} context
+	   */
+
+
+	  Events.prototype.once = function once(name, callback, context) {
+	    if (!eventsApi(this, 'once', name, [callback, context]) || !callback) {
+	      return this;
+	    }
+	    var self = this;
+	    var once = (0, _lodash2.default)(function () {
+	      self.off(name, once);
+	      callback.apply(this, arguments);
+	    });
+	    once._callback = callback;
+	    return this.on(name, once, context);
+	  };
+
+	  /**
+	   * stop listening to an event
+	   * @method off
+	   * @param {String} name
+	   * @param {Function} callback
+	   * @param {Object} context
+	   */
+
+
+	  Events.prototype.off = function off(name, callback, context) {
+	    var retain = void 0,
+	        ev = void 0,
+	        events = void 0,
+	        names = void 0,
+	        i = void 0,
+	        l = void 0,
+	        j = void 0,
+	        k = void 0;
+	    if (!this._events || !eventsApi(this, 'off', name, [callback, context])) {
+	      return this;
+	    }
+	    if (!name && !callback && !context) {
+	      this._events = void 0;
+	      return this;
+	    }
+	    names = name ? [name] : Object.keys(this._events);
+	    // jshint maxdepth:5
+	    for (i = 0, l = names.length; i < l; i++) {
+	      name = names[i];
+	      events = this._events[name];
+	      if (events) {
+	        this._events[name] = retain = [];
+	        if (callback || context) {
+	          for (j = 0, k = events.length; j < k; j++) {
+	            ev = events[j];
+	            if (callback && callback !== ev.callback && callback !== ev.callback._callback || context && context !== ev.context) {
+	              retain.push(ev);
+	            }
+	          }
+	        }
+	        if (!retain.length) {
+	          delete this._events[name];
+	        }
+	      }
+	    }
+	    return this;
+	  };
+
+	  /**
+	   * triggers an event given its `name`
+	   * @method trigger
+	   * @param {String} name
+	   */
+
+
+	  Events.prototype.trigger = function trigger(name) {
+	    var klass = this.name || this.constructor.name;
+	    _log2.default.debug.apply(_log2.default, [klass].concat(Array.prototype.slice.call(arguments)));
+	    if (!this._events) {
+	      return this;
+	    }
+	    var args = slice.call(arguments, 1);
+	    if (!eventsApi(this, 'trigger', name, args)) {
+	      return this;
+	    }
+	    var events = this._events[name];
+	    var allEvents = this._events.all;
+	    if (events) {
+	      triggerEvents(events, args, klass, name);
+	    }
+	    if (allEvents) {
+	      triggerEvents(allEvents, arguments, klass, name);
+	    }
+	    return this;
+	  };
+
+	  /**
+	   * stop listening an event for a given object
+	   * @method stopListening
+	   * @param {Object} obj
+	   * @param {String} name
+	   * @param {Function} callback
+	   */
+
+
+	  Events.prototype.stopListening = function stopListening(obj, name, callback) {
+	    var listeningTo = this._listeningTo;
+	    if (!listeningTo) {
+	      return this;
+	    }
+	    var remove = !name && !callback;
+	    if (!callback && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+	      callback = this;
+	    }
+	    if (obj) {
+	      (listeningTo = {})[obj._listenId] = obj;
+	    }
+	    for (var id in listeningTo) {
+	      obj = listeningTo[id];
+	      obj.off(name, callback, this);
+	      if (remove || Object.keys(obj._events).length === 0) {
+	        delete this._listeningTo[id];
+	      }
+	    }
+	    return this;
+	  };
+
+	  return Events;
+	}();
+
+	/**
+	 * listen to an event indefinitely for a given `obj`
+	 * @method listenTo
+	 * @param {Object} obj
+	 * @param {String} name
+	 * @param {Function} callback
+	 * @param {Object} context
+	 * @example
+	 * ```javascript
+	 * this.listenTo(this.core.playback, Events.PLAYBACK_PAUSE, this.callback)
+	 * ```
+	 */
+	/**
+	 * listen to an event once for a given `obj`
+	 * @method listenToOnce
+	 * @param {Object} obj
+	 * @param {String} name
+	 * @param {Function} callback
+	 * @param {Object} context
+	 * @example
+	 * ```javascript
+	 * this.listenToOnce(this.core.playback, Events.PLAYBACK_PAUSE, this.callback)
+	 * ```
+	 */
+
+
+	exports.default = Events;
+	var listenMethods = { listenTo: 'on', listenToOnce: 'once' };
+
+	Object.keys(listenMethods).forEach(function (method) {
+	  Events.prototype[method] = function (obj, name, callback) {
+	    var listeningTo = this._listeningTo || (this._listeningTo = {});
+	    var id = obj._listenId || (obj._listenId = (0, _utils.uniqueId)('l'));
+	    listeningTo[id] = obj;
+	    if (!callback && (typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+	      callback = this;
+	    }
+	    obj[listenMethods[method]](name, callback, this);
+	    return this;
+	  };
+	});
+
+	// PLAYER EVENTS
+	/**
+	 * Fired when the player is ready on startup
+	 *
+	 * @event PLAYER_READY
+	 */
+	Events.PLAYER_READY = 'ready';
+	/**
+	 * Fired when player resizes
+	 *
+	 * @event PLAYER_RESIZE
+	 * @param {Object} currentSize an object with the current size
+	 */
+	Events.PLAYER_RESIZE = 'resize';
+	/**
+	 * Fired when player changes its fullscreen state
+	 *
+	 * @event PLAYER_FULLSCREEN
+	 * @param {Boolean} whether or not the player is on fullscreen mode
+	 */
+	Events.PLAYER_FULLSCREEN = 'fullscreen';
+	/**
+	 * Fired when player starts to play
+	 *
+	 * @event PLAYER_PLAY
+	 */
+	Events.PLAYER_PLAY = 'play';
+	/**
+	 * Fired when player pauses
+	 *
+	 * @event PLAYER_PAUSE
+	 */
+	Events.PLAYER_PAUSE = 'pause';
+	/**
+	 * Fired when player stops
+	 *
+	 * @event PLAYER_STOP
+	 */
+	Events.PLAYER_STOP = 'stop';
+	/**
+	 * Fired when player ends the video
+	 *
+	 * @event PLAYER_ENDED
+	 */
+	Events.PLAYER_ENDED = 'ended';
+	/**
+	 * Fired when player seeks the video
+	 *
+	 * @event PLAYER_SEEK
+	 * @param {Number} time the current time in seconds
+	 */
+	Events.PLAYER_SEEK = 'seek';
+	/**
+	 * Fired when player receives an error
+	 *
+	 * @event PLAYER_ERROR
+	 * @param {Object} error the error
+	 */
+	Events.PLAYER_ERROR = 'error';
+	/**
+	 * Fired when the time is updated on player
+	 *
+	 * @event PLAYER_TIMEUPDATE
+	 * @param {Object} progress Data
+	 * progress object
+	 * @param {Number} [progress.current]
+	 * current time
+	 * @param {Number} [progress.total]
+	 * total time
+	 */
+	Events.PLAYER_TIMEUPDATE = 'timeupdate';
+	/**
+	 * Fired when player updates its volume
+	 *
+	 * @event PLAYER_VOLUMEUPDATE
+	 * @param {Number} volume the current volume
+	 */
+	Events.PLAYER_VOLUMEUPDATE = 'volumeupdate';
+
+	// Playback Events
+	/**
+	 * Fired when the playback is downloading the media
+	 *
+	 * @event PLAYBACK_PROGRESS
+	 * @param progress {Object}
+	 * Data progress object
+	 * @param [progress.start] {Number}
+	 * start position of buffered content at current position
+	 * @param [progress.current] {Number}
+	 * end position of buffered content at current position
+	 * @param [progress.total] {Number}
+	 * total content to be downloaded
+	 * @param buffered {Array}
+	 * array of buffered segments ({start, end}). [Only for supported playbacks]
+	 */
+	Events.PLAYBACK_PROGRESS = 'playback:progress';
+	/**
+	 * Fired when the time is updated on playback
+	 *
+	 * @event PLAYBACK_TIMEUPDATE
+	 * @param {Object} progress Data
+	 * progress object
+	 * @param {Number} [progress.current]
+	 * current time
+	 * @param {Number} [progress.total]
+	 * total time
+	 */
+	Events.PLAYBACK_TIMEUPDATE = 'playback:timeupdate';
+	/**
+	 * Fired when playback is ready
+	 *
+	 * @event PLAYBACK_READY
+	 */
+	Events.PLAYBACK_READY = 'playback:ready';
+	/**
+	 * Fired when the playback starts having to buffer because
+	 * playback can currently not be smooth.
+	 *
+	 * This corresponds to the playback `buffering` property being
+	 * `true`.
+	 *
+	 * @event PLAYBACK_BUFFERING
+	 */
+	Events.PLAYBACK_BUFFERING = 'playback:buffering';
+	/**
+	 * Fired when the playback has enough in the buffer to be
+	 * able to play smoothly, after previously being unable to
+	 * do this.
+	 *
+	 * This corresponds to the playback `buffering` property being
+	 * `false`.
+	 *
+	 * @event PLAYBACK_BUFFERFULL
+	 */
+	Events.PLAYBACK_BUFFERFULL = 'playback:bufferfull';
+	/**
+	 * Fired when playback changes any settings (volume, seek and etc)
+	 *
+	 * @event PLAYBACK_SETTINGSUPDATE
+	 */
+	Events.PLAYBACK_SETTINGSUPDATE = 'playback:settingsupdate';
+	/**
+	 * Fired when playback loaded its metadata
+	 *
+	 * @event PLAYBACK_LOADEDMETADATA
+	 * @param {Object} metadata Data
+	 * settings object
+	 * @param {Number} [metadata.duration]
+	 * the playback duration
+	 * @param {Object} [metadata.data]
+	 * extra meta data
+	 */
+	Events.PLAYBACK_LOADEDMETADATA = 'playback:loadedmetadata';
+	/**
+	 * Fired when playback updates its video quality
+	 *
+	 * @event PLAYBACK_HIGHDEFINITIONUPDATE
+	 * @param {Boolean} isHD
+	 * true when is on HD, false otherwise
+	 */
+	Events.PLAYBACK_HIGHDEFINITIONUPDATE = 'playback:highdefinitionupdate';
+	/**
+	 * Fired when playback updates its bitrate
+	 *
+	 * @event PLAYBACK_BITRATE
+	 * @param {Object} bitrate Data
+	 * bitrate object
+	 * @param {Number} [bitrate.bandwidth]
+	 * bitrate bandwidth when it's available
+	 * @param {Number} [bitrate.width]
+	 * playback width (ex: 720, 640, 1080)
+	 * @param {Number} [bitrate.height]
+	 * playback height (ex: 240, 480, 720)
+	 * @param {Number} [bitrate.level]
+	 * playback level when it's available, it could be just a map for width (0 => 240, 1 => 480, 2 => 720)
+	 */
+	Events.PLAYBACK_BITRATE = 'playback:bitrate';
+	/**
+	 * Fired when the playback has its levels
+	 *
+	 * @event PLAYBACK_LEVELS_AVAILABLE
+	 * @param {Array} levels
+	 * the ordered levels, each one with the following format `{id: 1, label: '500kbps'}` ps: id should be a number >= 0
+	 * @param {Number} initial
+	 * the initial level otherwise -1 (AUTO)
+	 */
+	Events.PLAYBACK_LEVELS_AVAILABLE = 'playback:levels:available';
+	/**
+	 * Fired when the playback starts to switch level
+	 *
+	 * @event PLAYBACK_LEVEL_SWITCH_START
+	 *
+	 */
+	Events.PLAYBACK_LEVEL_SWITCH_START = 'playback:levels:switch:start';
+	/**
+	 * Fired when the playback ends the level switch
+	 *
+	 * @event PLAYBACK_LEVEL_SWITCH_END
+	 *
+	 */
+	Events.PLAYBACK_LEVEL_SWITCH_END = 'playback:levels:switch:end';
+
+	/**
+	 * Fired when playback internal state changes
+	 *
+	 * @event PLAYBACK_PLAYBACKSTATE
+	 * @param {Object} state Data
+	 * state object
+	 * @param {String} [state.type]
+	 * the playback type
+	 */
+	Events.PLAYBACK_PLAYBACKSTATE = 'playback:playbackstate';
+	/**
+	 * Fired when DVR becomes enabled/disabled.
+	 *
+	 * @event PLAYBACK_DVR
+	 * @param {boolean} state true if dvr enabled
+	 */
+	Events.PLAYBACK_DVR = 'playback:dvr';
+	// TODO doc
+	Events.PLAYBACK_MEDIACONTROL_DISABLE = 'playback:mediacontrol:disable';
+	// TODO doc
+	Events.PLAYBACK_MEDIACONTROL_ENABLE = 'playback:mediacontrol:enable';
+	/**
+	 * Fired when the media for a playback ends.
+	 *
+	 * @event PLAYBACK_ENDED
+	 * @param {String} name the name of the playback
+	 */
+	Events.PLAYBACK_ENDED = 'playback:ended';
+	/**
+	 * Fired when user requests `play()`
+	 *
+	 * @event PLAYBACK_PLAY_INTENT
+	 */
+	Events.PLAYBACK_PLAY_INTENT = 'playback:play:intent';
+	/**
+	 * Fired when the media for a playback starts playing.
+	 * This is not necessarily when the user requests `play()`
+	 * The media may have to buffer first.
+	 * I.e. `isPlaying()` might return `true` before this event is fired,
+	 * because `isPlaying()` represents the intended state.
+	 *
+	 * @event PLAYBACK_PLAY
+	 */
+	Events.PLAYBACK_PLAY = 'playback:play';
+	/**
+	 * Fired when the media for a playback pauses.
+	 *
+	 * @event PLAYBACK_PAUSE
+	 */
+	Events.PLAYBACK_PAUSE = 'playback:pause';
+	/**
+	 * Fired when the media for a playback is stopped.
+	 *
+	 * @event PLAYBACK_STOP
+	 */
+	Events.PLAYBACK_STOP = 'playback:stop';
+	/**
+	 * Fired if an error occurs in the playback.
+	 *
+	 * @event PLAYBACK_ERROR
+	 * @param {Object} error An object containing the error details
+	 * @param {String} name Playback name
+	 */
+	Events.PLAYBACK_ERROR = 'playback:error';
+	// TODO doc
+	Events.PLAYBACK_STATS_ADD = 'playback:stats:add';
+	// TODO doc
+	Events.PLAYBACK_FRAGMENT_LOADED = 'playback:fragment:loaded';
+	// TODO doc
+	Events.PLAYBACK_LEVEL_SWITCH = 'playback:level:switch';
+
+	/**
+	 * Fired when the options were changed for the core
+	 *
+	 * @event CORE_OPTIONS_CHANGE
+	 */
+	Events.CORE_OPTIONS_CHANGE = 'core:options:change';
+	/**
+	 * Fired after creating containers, when the core is ready
+	 *
+	 * @event CORE_READY
+	 */
+	Events.CORE_READY = 'core:ready';
+	/**
+	 * Fired when the fullscreen state change
+	 *
+	 * @param {Boolean} whether or not the player is on fullscreen mode
+	 * @event CORE_READY
+	 */
+	Events.CORE_FULLSCREEN = 'core:fullscreen';
+
+	// Container Events
+	/**
+	 * Fired when the container internal state changes
+	 *
+	 * @event CONTAINER_PLAYBACKSTATE
+	 * @param {Object} state Data
+	 * state object
+	 * @param {String} [state.type]
+	 * the playback type
+	 */
+	Events.CONTAINER_PLAYBACKSTATE = 'container:playbackstate';
+	Events.CONTAINER_PLAYBACKDVRSTATECHANGED = 'container:dvr';
+	/**
+	 * Fired when the container updates its bitrate
+	 *
+	 * @event CONTAINER_BITRATE
+	 * @param {Object} bitrate Data
+	 * bitrate object
+	 * @param {Number} [bitrate.bandwidth]
+	 * bitrate bandwidth when it's available
+	 * @param {Number} [bitrate.width]
+	 * playback width (ex: 720, 640, 1080)
+	 * @param {Number} [bitrate.height]
+	 * playback height (ex: 240, 480, 720)
+	 * @param {Number} [bitrate.level]
+	 * playback level when it's available, it could be just a map for width (0 => 240, 1 => 480, 2 => 720)
+	 */
+	Events.CONTAINER_BITRATE = 'container:bitrate';
+	Events.CONTAINER_STATS_REPORT = 'container:stats:report';
+	Events.CONTAINER_DESTROYED = 'container:destroyed';
+	/**
+	 * Fired when the container is ready
+	 *
+	 * @event CONTAINER_READY
+	 */
+	Events.CONTAINER_READY = 'container:ready';
+	Events.CONTAINER_ERROR = 'container:error';
+	/**
+	 * Fired when the container loaded its metadata
+	 *
+	 * @event CONTAINER_LOADEDMETADATA
+	 * @param {Object} metadata Data
+	 * settings object
+	 * @param {Number} [metadata.duration]
+	 * the playback duration
+	 * @param {Object} [metadata.data]
+	 * extra meta data
+	 */
+	Events.CONTAINER_LOADEDMETADATA = 'container:loadedmetadata';
+	/**
+	 * Fired when the time is updated on container
+	 *
+	 * @event CONTAINER_TIMEUPDATE
+	 * @param {Object} progress Data
+	 * progress object
+	 * @param {Number} [progress.current]
+	 * current time
+	 * @param {Number} [progress.total]
+	 * total time
+	 */
+	Events.CONTAINER_TIMEUPDATE = 'container:timeupdate';
+	/**
+	 * Fired when the container is downloading the media
+	 *
+	 * @event CONTAINER_PROGRESS
+	 * @param {Object} progress Data
+	 * progress object
+	 * @param {Number} [progress.start]
+	 * initial downloaded content
+	 * @param {Number} [progress.current]
+	 * current dowloaded content
+	 * @param {Number} [progress.total]
+	 * total content to be downloaded
+	 */
+	Events.CONTAINER_PROGRESS = 'container:progress';
+	Events.CONTAINER_PLAY = 'container:play';
+	Events.CONTAINER_STOP = 'container:stop';
+	Events.CONTAINER_PAUSE = 'container:pause';
+	Events.CONTAINER_ENDED = 'container:ended';
+	Events.CONTAINER_CLICK = 'container:click';
+	Events.CONTAINER_DBLCLICK = 'container:dblclick';
+	Events.CONTAINER_CONTEXTMENU = 'container:contextmenu';
+	Events.CONTAINER_MOUSE_ENTER = 'container:mouseenter';
+	Events.CONTAINER_MOUSE_LEAVE = 'container:mouseleave';
+	/**
+	 * Fired when the container seeks the video
+	 *
+	 * @event CONTAINER_SEEK
+	 * @param {Number} time the current time in seconds
+	 */
+	Events.CONTAINER_SEEK = 'container:seek';
+	Events.CONTAINER_VOLUME = 'container:volume';
+	Events.CONTAINER_FULLSCREEN = 'container:fullscreen';
+	/**
+	 * Fired when container is buffering
+	 *
+	 * @event CONTAINER_STATE_BUFFERING
+	 */
+	Events.CONTAINER_STATE_BUFFERING = 'container:state:buffering';
+	/**
+	 * Fired when the container filled the buffer
+	 *
+	 * @event CONTAINER_STATE_BUFFERFULL
+	 */
+	Events.CONTAINER_STATE_BUFFERFULL = 'container:state:bufferfull';
+	/**
+	 * Fired when the container changes any settings (volume, seek and etc)
+	 *
+	 * @event CONTAINER_SETTINGSUPDATE
+	 */
+	Events.CONTAINER_SETTINGSUPDATE = 'container:settingsupdate';
+	/**
+	 * Fired when container updates its video quality
+	 *
+	 * @event CONTAINER_HIGHDEFINITIONUPDATE
+	 * @param {Boolean} isHD
+	 * true when is on HD, false otherwise
+	 */
+	Events.CONTAINER_HIGHDEFINITIONUPDATE = 'container:highdefinitionupdate';
+
+	/**
+	 * Fired when the media control shows
+	 *
+	 * @event CONTAINER_MEDIACONTROL_SHOW
+	 */
+	Events.CONTAINER_MEDIACONTROL_SHOW = 'container:mediacontrol:show';
+	/**
+	 * Fired when the media control hides
+	 *
+	 * @event CONTAINER_MEDIACONTROL_HIDE
+	 */
+	Events.CONTAINER_MEDIACONTROL_HIDE = 'container:mediacontrol:hide';
+
+	Events.CONTAINER_MEDIACONTROL_DISABLE = 'container:mediacontrol:disable';
+	Events.CONTAINER_MEDIACONTROL_ENABLE = 'container:mediacontrol:enable';
+	Events.CONTAINER_STATS_ADD = 'container:stats:add';
+	/**
+	 * Fired when the options were changed for the container
+	 *
+	 * @event CONTAINER_OPTIONS_CHANGE
+	 */
+	Events.CONTAINER_OPTIONS_CHANGE = 'container:options:change';
+
+	// MediaControl Events
+	Events.MEDIACONTROL_RENDERED = 'mediacontrol:rendered';
+	/**
+	 * Fired when the player enters/exit on fullscreen
+	 *
+	 * @event MEDIACONTROL_FULLSCREEN
+	 */
+	Events.MEDIACONTROL_FULLSCREEN = 'mediacontrol:fullscreen';
+	/**
+	 * Fired when the media control shows
+	 *
+	 * @event MEDIACONTROL_SHOW
+	 */
+	Events.MEDIACONTROL_SHOW = 'mediacontrol:show';
+	/**
+	 * Fired when the media control hides
+	 *
+	 * @event MEDIACONTROL_HIDE
+	 */
+	Events.MEDIACONTROL_HIDE = 'mediacontrol:hide';
+	/**
+	 * Fired when mouse enters on the seekbar
+	 *
+	 * @event MEDIACONTROL_MOUSEMOVE_SEEKBAR
+	 * @param {Object} event
+	 * the javascript event
+	 */
+	Events.MEDIACONTROL_MOUSEMOVE_SEEKBAR = 'mediacontrol:mousemove:seekbar';
+	/**
+	 * Fired when mouse leaves the seekbar
+	 *
+	 * @event MEDIACONTROL_MOUSELEAVE_SEEKBAR
+	 * @param {Object} event
+	 * the javascript event
+	 */
+	Events.MEDIACONTROL_MOUSELEAVE_SEEKBAR = 'mediacontrol:mouseleave:seekbar';
+	/**
+	 * Fired when the media is being played
+	 *
+	 * @event MEDIACONTROL_PLAYING
+	 */
+	Events.MEDIACONTROL_PLAYING = 'mediacontrol:playing';
+	/**
+	 * Fired when the media is not being played
+	 *
+	 * @event MEDIACONTROL_NOTPLAYING
+	 */
+	Events.MEDIACONTROL_NOTPLAYING = 'mediacontrol:notplaying';
+	/**
+	 * Fired when the container was changed
+	 *
+	 * @event MEDIACONTROL_CONTAINERCHANGED
+	 */
+	Events.MEDIACONTROL_CONTAINERCHANGED = 'mediacontrol:containerchanged';
+
+	// Core Events
+	Events.CORE_CONTAINERS_CREATED = 'core:containers:created';
+	module.exports = exports['default'];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(8);
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _vendor = __webpack_require__(9);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	var BOLD = 'font-weight: bold; font-size: 13px;';
+	var INFO = 'color: #006600;' + BOLD;
+	var DEBUG = 'color: #0000ff;' + BOLD;
+	var WARN = 'color: #ff8000;' + BOLD;
+	var ERROR = 'color: #ff0000;' + BOLD;
+
+	var LEVEL_DEBUG = 0;
+	var LEVEL_INFO = 1;
+	var LEVEL_WARN = 2;
+	var LEVEL_ERROR = 3;
+	var LEVEL_DISABLED = LEVEL_ERROR;
+
+	var COLORS = [DEBUG, INFO, WARN, ERROR, ERROR];
+	var DESCRIPTIONS = ['debug', 'info', 'warn', 'error', 'disabled'];
+
+	var Log = function () {
+	  function Log() {
+	    var _this = this;
+
+	    var level = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : LEVEL_INFO;
+	    var offLevel = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : LEVEL_DISABLED;
+
+	    _classCallCheck(this, Log);
+
+	    this.kibo = new _vendor.Kibo();
+	    this.kibo.down(['ctrl shift d'], function () {
+	      return _this.onOff();
+	    });
+	    this.BLACKLIST = ['timeupdate', 'playback:timeupdate', 'playback:progress', 'container:hover', 'container:timeupdate', 'container:progress'];
+	    this.level = level;
+	    this.offLevel = offLevel;
+	  }
+
+	  Log.prototype.debug = function debug(klass) {
+	    this.log(klass, LEVEL_DEBUG, Array.prototype.slice.call(arguments, 1));
+	  };
+
+	  Log.prototype.info = function info(klass) {
+	    this.log(klass, LEVEL_INFO, Array.prototype.slice.call(arguments, 1));
+	  };
+
+	  Log.prototype.warn = function warn(klass) {
+	    this.log(klass, LEVEL_WARN, Array.prototype.slice.call(arguments, 1));
+	  };
+
+	  Log.prototype.error = function error(klass) {
+	    this.log(klass, LEVEL_ERROR, Array.prototype.slice.call(arguments, 1));
+	  };
+
+	  Log.prototype.onOff = function onOff() {
+	    if (this.level === this.offLevel) {
+	      this.level = this.previousLevel;
+	    } else {
+	      this.previousLevel = this.level;
+	      this.level = this.offLevel;
+	    }
+	    // handle instances where console.log is unavailable
+	    if (window.console && window.console.log) {
+	      window.console.log('%c[Clappr.Log] set log level to ' + DESCRIPTIONS[this.level], WARN);
+	    }
+	  };
+
+	  Log.prototype.level = function level(newLevel) {
+	    this.level = newLevel;
+	  };
+
+	  Log.prototype.log = function log(klass, level, message) {
+	    if (this.BLACKLIST.indexOf(message[0]) >= 0) return;
+	    if (level < this.level) return;
+
+	    if (!message) {
+	      message = klass;
+	      klass = null;
+	    }
+	    var color = COLORS[level];
+	    var klassDescription = '';
+	    if (klass) {
+	      klassDescription = '[' + klass + ']';
+	    }
+	    if (window.console && window.console.log) {
+	      window.console.log.apply(console, ['%c[' + DESCRIPTIONS[level] + ']' + klassDescription, color].concat(message));
+	    }
+	  };
+
+	  return Log;
+	}();
+
+	exports.default = Log;
+
+
+	Log.LEVEL_DEBUG = LEVEL_DEBUG;
+	Log.LEVEL_INFO = LEVEL_INFO;
+	Log.LEVEL_WARN = LEVEL_WARN;
+	Log.LEVEL_ERROR = LEVEL_ERROR;
+
+	Log.getInstance = function () {
+	  if (this._instance === undefined) {
+	    this._instance = new this();
+	    this._instance.previousLevel = this._instance.level;
+	    this._instance.level = this._instance.offLevel;
+	  }
+	  return this._instance;
+	};
+
+	Log.setLevel = function (level) {
+	  this.getInstance().level = level;
+	};
+
+	Log.debug = function () {
+	  this.getInstance().debug.apply(this.getInstance(), arguments);
+	};
+	Log.info = function () {
+	  this.getInstance().info.apply(this.getInstance(), arguments);
+	};
+	Log.warn = function () {
+	  this.getInstance().warn.apply(this.getInstance(), arguments);
+	};
+	Log.error = function () {
+	  this.getInstance().error.apply(this.getInstance(), arguments);
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _kibo = __webpack_require__(10);
+
+	var _kibo2 = _interopRequireDefault(_kibo);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	exports.default = { Kibo: _kibo2.default };
+	module.exports = exports['default'];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/* eslint-disable */
+	// Kibo is released under the MIT License. Copyright (c) 2013 marquete.
+	// see https://github.com/marquete/kibo
+
+	var Kibo = function Kibo(element) {
+	  this.element = element || window.document;
+	  this.initialize();
+	};
+
+	Kibo.KEY_NAMES_BY_CODE = {
+	  8: 'backspace', 9: 'tab', 13: 'enter',
+	  16: 'shift', 17: 'ctrl', 18: 'alt',
+	  20: 'caps_lock',
+	  27: 'esc',
+	  32: 'space',
+	  37: 'left', 38: 'up', 39: 'right', 40: 'down',
+	  48: '0', 49: '1', 50: '2', 51: '3', 52: '4', 53: '5', 54: '6', 55: '7', 56: '8', 57: '9',
+	  65: 'a', 66: 'b', 67: 'c', 68: 'd', 69: 'e', 70: 'f', 71: 'g', 72: 'h', 73: 'i', 74: 'j',
+	  75: 'k', 76: 'l', 77: 'm', 78: 'n', 79: 'o', 80: 'p', 81: 'q', 82: 'r', 83: 's', 84: 't',
+	  85: 'u', 86: 'v', 87: 'w', 88: 'x', 89: 'y', 90: 'z', 112: 'f1', 113: 'f2', 114: 'f3',
+	  115: 'f4', 116: 'f5', 117: 'f6', 118: 'f7', 119: 'f8', 120: 'f9', 121: 'f10', 122: 'f11', 123: 'f12'
+	};
+
+	Kibo.KEY_CODES_BY_NAME = {};
+	(function () {
+	  for (var key in Kibo.KEY_NAMES_BY_CODE) {
+	    if (Object.prototype.hasOwnProperty.call(Kibo.KEY_NAMES_BY_CODE, key)) {
+	      Kibo.KEY_CODES_BY_NAME[Kibo.KEY_NAMES_BY_CODE[key]] = +key;
+	    }
+	  }
+	})();
+
+	Kibo.MODIFIERS = ['shift', 'ctrl', 'alt'];
+
+	Kibo.registerEvent = function () {
+	  if (document.addEventListener) {
+	    return function (element, eventName, func) {
+	      element.addEventListener(eventName, func, false);
+	    };
+	  } else if (document.attachEvent) {
+	    return function (element, eventName, func) {
+	      element.attachEvent('on' + eventName, func);
+	    };
+	  }
+	}();
+
+	Kibo.unregisterEvent = function () {
+	  if (document.removeEventListener) {
+	    return function (element, eventName, func) {
+	      element.removeEventListener(eventName, func, false);
+	    };
+	  } else if (document.detachEvent) {
+	    return function (element, eventName, func) {
+	      element.detachEvent('on' + eventName, func);
+	    };
+	  }
+	}();
+
+	Kibo.stringContains = function (string, substring) {
+	  return string.indexOf(substring) !== -1;
+	};
+
+	Kibo.neatString = function (string) {
+	  return string.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' ');
+	};
+
+	Kibo.capitalize = function (string) {
+	  return string.toLowerCase().replace(/^./, function (match) {
+	    return match.toUpperCase();
+	  });
+	};
+
+	Kibo.isString = function (what) {
+	  return Kibo.stringContains(Object.prototype.toString.call(what), 'String');
+	};
+
+	Kibo.arrayIncludes = function () {
+	  if (Array.prototype.indexOf) {
+	    return function (haystack, needle) {
+	      return haystack.indexOf(needle) !== -1;
+	    };
+	  } else {
+	    return function (haystack, needle) {
+	      for (var i = 0; i < haystack.length; i++) {
+	        if (haystack[i] === needle) {
+	          return true;
+	        }
+	      }
+	      return false;
+	    };
+	  }
+	}();
+
+	Kibo.extractModifiers = function (keyCombination) {
+	  var modifiers, i;
+	  modifiers = [];
+	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
+	    if (Kibo.stringContains(keyCombination, Kibo.MODIFIERS[i])) {
+	      modifiers.push(Kibo.MODIFIERS[i]);
+	    }
+	  }
+	  return modifiers;
+	};
+
+	Kibo.extractKey = function (keyCombination) {
+	  var keys, i;
+	  keys = Kibo.neatString(keyCombination).split(' ');
+	  for (i = 0; i < keys.length; i++) {
+	    if (!Kibo.arrayIncludes(Kibo.MODIFIERS, keys[i])) {
+	      return keys[i];
+	    }
+	  }
+	};
+
+	Kibo.modifiersAndKey = function (keyCombination) {
+	  var result, key;
+
+	  if (Kibo.stringContains(keyCombination, 'any')) {
+	    return Kibo.neatString(keyCombination).split(' ').slice(0, 2).join(' ');
+	  }
+
+	  result = Kibo.extractModifiers(keyCombination);
+
+	  key = Kibo.extractKey(keyCombination);
+	  if (key && !Kibo.arrayIncludes(Kibo.MODIFIERS, key)) {
+	    result.push(key);
+	  }
+
+	  return result.join(' ');
+	};
+
+	Kibo.keyName = function (keyCode) {
+	  return Kibo.KEY_NAMES_BY_CODE[keyCode + ''];
+	};
+
+	Kibo.keyCode = function (keyName) {
+	  return +Kibo.KEY_CODES_BY_NAME[keyName];
+	};
+
+	Kibo.prototype.initialize = function () {
+	  var i,
+	      that = this;
+
+	  this.lastKeyCode = -1;
+	  this.lastModifiers = {};
+	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
+	    this.lastModifiers[Kibo.MODIFIERS[i]] = false;
+	  }
+
+	  this.keysDown = { any: [] };
+	  this.keysUp = { any: [] };
+	  this.downHandler = this.handler('down');
+	  this.upHandler = this.handler('up');
+
+	  Kibo.registerEvent(this.element, 'keydown', this.downHandler);
+	  Kibo.registerEvent(this.element, 'keyup', this.upHandler);
+	  Kibo.registerEvent(window, 'unload', function unloader() {
+	    Kibo.unregisterEvent(that.element, 'keydown', that.downHandler);
+	    Kibo.unregisterEvent(that.element, 'keyup', that.upHandler);
+	    Kibo.unregisterEvent(window, 'unload', unloader);
+	  });
+	};
+
+	Kibo.prototype.handler = function (upOrDown) {
+	  var that = this;
+	  return function (e) {
+	    var i, registeredKeys, lastModifiersAndKey;
+
+	    e = e || window.event;
+
+	    that.lastKeyCode = e.keyCode;
+	    for (i = 0; i < Kibo.MODIFIERS.length; i++) {
+	      that.lastModifiers[Kibo.MODIFIERS[i]] = e[Kibo.MODIFIERS[i] + 'Key'];
+	    }
+	    if (Kibo.arrayIncludes(Kibo.MODIFIERS, Kibo.keyName(that.lastKeyCode))) {
+	      that.lastModifiers[Kibo.keyName(that.lastKeyCode)] = true;
+	    }
+
+	    registeredKeys = that['keys' + Kibo.capitalize(upOrDown)];
+
+	    for (i = 0; i < registeredKeys.any.length; i++) {
+	      if (registeredKeys.any[i](e) === false && e.preventDefault) {
+	        e.preventDefault();
+	      }
+	    }
+
+	    lastModifiersAndKey = that.lastModifiersAndKey();
+	    if (registeredKeys[lastModifiersAndKey]) {
+	      for (i = 0; i < registeredKeys[lastModifiersAndKey].length; i++) {
+	        if (registeredKeys[lastModifiersAndKey][i](e) === false && e.preventDefault) {
+	          e.preventDefault();
+	        }
+	      }
+	    }
+	  };
+	};
+
+	Kibo.prototype.registerKeys = function (upOrDown, newKeys, func) {
+	  var i,
+	      keys,
+	      registeredKeys = this['keys' + Kibo.capitalize(upOrDown)];
+
+	  if (Kibo.isString(newKeys)) {
+	    newKeys = [newKeys];
+	  }
+
+	  for (i = 0; i < newKeys.length; i++) {
+	    keys = newKeys[i];
+	    keys = Kibo.modifiersAndKey(keys + '');
+
+	    if (registeredKeys[keys]) {
+	      registeredKeys[keys].push(func);
+	    } else {
+	      registeredKeys[keys] = [func];
+	    }
+	  }
+
+	  return this;
+	};
+
+	// jshint maxdepth:5
+	Kibo.prototype.unregisterKeys = function (upOrDown, newKeys, func) {
+	  var i,
+	      j,
+	      keys,
+	      registeredKeys = this['keys' + Kibo.capitalize(upOrDown)];
+
+	  if (Kibo.isString(newKeys)) {
+	    newKeys = [newKeys];
+	  }
+
+	  for (i = 0; i < newKeys.length; i++) {
+	    keys = newKeys[i];
+	    keys = Kibo.modifiersAndKey(keys + '');
+
+	    if (func === null) {
+	      delete registeredKeys[keys];
+	    } else {
+	      if (registeredKeys[keys]) {
+	        for (j = 0; j < registeredKeys[keys].length; j++) {
+	          if (String(registeredKeys[keys][j]) === String(func)) {
+	            registeredKeys[keys].splice(j, 1);
+	            break;
+	          }
+	        }
+	      }
+	    }
+	  }
+
+	  return this;
+	};
+
+	Kibo.prototype.off = function (keys) {
+	  return this.unregisterKeys('down', keys, null);
+	};
+
+	Kibo.prototype.delegate = function (upOrDown, keys, func) {
+	  return func !== null || func !== undefined ? this.registerKeys(upOrDown, keys, func) : this.unregisterKeys(upOrDown, keys, func);
+	};
+
+	Kibo.prototype.down = function (keys, func) {
+	  return this.delegate('down', keys, func);
+	};
+
+	Kibo.prototype.up = function (keys, func) {
+	  return this.delegate('up', keys, func);
+	};
+
+	Kibo.prototype.lastKey = function (modifier) {
+	  if (!modifier) {
+	    return Kibo.keyName(this.lastKeyCode);
+	  }
+
+	  return this.lastModifiers[modifier];
+	};
+
+	Kibo.prototype.lastModifiersAndKey = function () {
+	  var result, i;
+
+	  result = [];
+	  for (i = 0; i < Kibo.MODIFIERS.length; i++) {
+	    if (this.lastKey(Kibo.MODIFIERS[i])) {
+	      result.push(Kibo.MODIFIERS[i]);
+	    }
+	  }
+
+	  if (!Kibo.arrayIncludes(result, this.lastKey())) {
+	    result.push(this.lastKey());
+	  }
+
+	  return result.join(' ');
+	};
+
+	exports.default = Kibo;
+	module.exports = exports['default'];
+
+/***/ },
+/* 11 */
+/***/ function(module, exports) {
+
+	/**
+	 * lodash (Custom Build) <https://lodash.com/>
+	 * Build: `lodash modularize exports="npm" -o ./`
+	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+	 * Released under MIT license <https://lodash.com/license>
+	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 */
+
+	/** Used as the `TypeError` message for "Functions" methods. */
+	var FUNC_ERROR_TEXT = 'Expected a function';
+
+	/** Used as references for various `Number` constants. */
+	var INFINITY = 1 / 0,
+	    MAX_INTEGER = 1.7976931348623157e+308,
+	    NAN = 0 / 0;
+
+	/** `Object#toString` result references. */
+	var symbolTag = '[object Symbol]';
+
+	/** Used to match leading and trailing whitespace. */
+	var reTrim = /^\s+|\s+$/g;
+
+	/** Used to detect bad signed hexadecimal string values. */
+	var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+	/** Used to detect binary string values. */
+	var reIsBinary = /^0b[01]+$/i;
+
+	/** Used to detect octal string values. */
+	var reIsOctal = /^0o[0-7]+$/i;
+
+	/** Built-in method references without a dependency on `root`. */
+	var freeParseInt = parseInt;
+
+	/** Used for built-in method references. */
+	var objectProto = Object.prototype;
+
+	/**
+	 * Used to resolve the
+	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+	 * of values.
+	 */
+	var objectToString = objectProto.toString;
+
+	/**
+	 * Creates a function that invokes `func`, with the `this` binding and arguments
+	 * of the created function, while it's called less than `n` times. Subsequent
+	 * calls to the created function return the result of the last `func` invocation.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 3.0.0
+	 * @category Function
+	 * @param {number} n The number of calls at which `func` is no longer invoked.
+	 * @param {Function} func The function to restrict.
+	 * @returns {Function} Returns the new restricted function.
+	 * @example
+	 *
+	 * jQuery(element).on('click', _.before(5, addContactToList));
+	 * // => Allows adding up to 4 contacts to the list.
+	 */
+	function before(n, func) {
+	  var result;
+	  if (typeof func != 'function') {
+	    throw new TypeError(FUNC_ERROR_TEXT);
+	  }
+	  n = toInteger(n);
+	  return function() {
+	    if (--n > 0) {
+	      result = func.apply(this, arguments);
+	    }
+	    if (n <= 1) {
+	      func = undefined;
+	    }
+	    return result;
+	  };
+	}
+
+	/**
+	 * Creates a function that is restricted to invoking `func` once. Repeat calls
+	 * to the function return the value of the first invocation. The `func` is
+	 * invoked with the `this` binding and arguments of the created function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Function
+	 * @param {Function} func The function to restrict.
+	 * @returns {Function} Returns the new restricted function.
+	 * @example
+	 *
+	 * var initialize = _.once(createApplication);
+	 * initialize();
+	 * initialize();
+	 * // => `createApplication` is invoked once
+	 */
+	function once(func) {
+	  return before(2, func);
+	}
+
+	/**
+	 * Checks if `value` is the
+	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 0.1.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+
+	/**
+	 * Checks if `value` is classified as a `Symbol` primitive or object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+	 * @example
+	 *
+	 * _.isSymbol(Symbol.iterator);
+	 * // => true
+	 *
+	 * _.isSymbol('abc');
+	 * // => false
+	 */
+	function isSymbol(value) {
+	  return typeof value == 'symbol' ||
+	    (isObjectLike(value) && objectToString.call(value) == symbolTag);
+	}
+
+	/**
+	 * Converts `value` to a finite number.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.12.0
+	 * @category Lang
+	 * @param {*} value The value to convert.
+	 * @returns {number} Returns the converted number.
+	 * @example
+	 *
+	 * _.toFinite(3.2);
+	 * // => 3.2
+	 *
+	 * _.toFinite(Number.MIN_VALUE);
+	 * // => 5e-324
+	 *
+	 * _.toFinite(Infinity);
+	 * // => 1.7976931348623157e+308
+	 *
+	 * _.toFinite('3.2');
+	 * // => 3.2
+	 */
+	function toFinite(value) {
+	  if (!value) {
+	    return value === 0 ? value : 0;
+	  }
+	  value = toNumber(value);
+	  if (value === INFINITY || value === -INFINITY) {
+	    var sign = (value < 0 ? -1 : 1);
+	    return sign * MAX_INTEGER;
+	  }
+	  return value === value ? value : 0;
+	}
+
+	/**
+	 * Converts `value` to an integer.
+	 *
+	 * **Note:** This method is loosely based on
+	 * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to convert.
+	 * @returns {number} Returns the converted integer.
+	 * @example
+	 *
+	 * _.toInteger(3.2);
+	 * // => 3
+	 *
+	 * _.toInteger(Number.MIN_VALUE);
+	 * // => 0
+	 *
+	 * _.toInteger(Infinity);
+	 * // => 1.7976931348623157e+308
+	 *
+	 * _.toInteger('3.2');
+	 * // => 3
+	 */
+	function toInteger(value) {
+	  var result = toFinite(value),
+	      remainder = result % 1;
+
+	  return result === result ? (remainder ? result - remainder : result) : 0;
+	}
+
+	/**
+	 * Converts `value` to a number.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @since 4.0.0
+	 * @category Lang
+	 * @param {*} value The value to process.
+	 * @returns {number} Returns the number.
+	 * @example
+	 *
+	 * _.toNumber(3.2);
+	 * // => 3.2
+	 *
+	 * _.toNumber(Number.MIN_VALUE);
+	 * // => 5e-324
+	 *
+	 * _.toNumber(Infinity);
+	 * // => Infinity
+	 *
+	 * _.toNumber('3.2');
+	 * // => 3.2
+	 */
+	function toNumber(value) {
+	  if (typeof value == 'number') {
+	    return value;
+	  }
+	  if (isSymbol(value)) {
+	    return NAN;
+	  }
+	  if (isObject(value)) {
+	    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+	    value = isObject(other) ? (other + '') : other;
+	  }
+	  if (typeof value != 'string') {
+	    return value === 0 ? value : +value;
+	  }
+	  value = value.replace(reTrim, '');
+	  var isBinary = reIsBinary.test(value);
+	  return (isBinary || reIsOctal.test(value))
+	    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+	    : (reIsBadHex.test(value) ? NAN : +value);
+	}
+
+	module.exports = once;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(13);
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _base_object = __webpack_require__(5);
+
+	var _base_object2 = _interopRequireDefault(_base_object);
+
+	var _core = __webpack_require__(14);
+
+	var _core2 = _interopRequireDefault(_core);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	/**
+	 * The Core Factory is responsible for instantiate the core and it's plugins.
+	 * @class CoreFactory
+	 * @constructor
+	 * @extends BaseObject
+	 * @module components
+	 */
+	var CoreFactory = function (_BaseObject) {
+	  _inherits(CoreFactory, _BaseObject);
+
+	  _createClass(CoreFactory, [{
+	    key: 'loader',
+	    get: function get() {
+	      return this.player.loader;
+	    }
+
+	    /**
+	     * it builds the core factory
+	     * @method constructor
+	     * @param {Player} player the player object
+	     */
+
+	  }]);
+
+	  function CoreFactory(player) {
+	    _classCallCheck(this, CoreFactory);
+
+	    var _this = _possibleConstructorReturn(this, _BaseObject.call(this));
+
+	    _this.player = player;
+	    _this._options = player.options;
+	    return _this;
+	  }
+
+	  /**
+	   * creates a core and its plugins
+	   * @method create
+	   * @return {Core} created core
+	   */
+
+
+	  CoreFactory.prototype.create = function create() {
+	    this.options.loader = this.loader;
+	    this.core = new _core2.default(this.options);
+	    this.addCorePlugins();
+	    this.core.createContainers(this.options);
+	    return this.core;
+	  };
+
+	  /**
+	   * given the core plugins (`loader.corePlugins`) it builds each one
+	   * @method addCorePlugins
+	   * @return {Core} the core with all plugins
+	   */
+
+
+	  CoreFactory.prototype.addCorePlugins = function addCorePlugins() {
+	    var _this2 = this;
+
+	    this.loader.corePlugins.forEach(function (Plugin) {
+	      var plugin = new Plugin(_this2.core);
+	      _this2.core.addPlugin(plugin);
+	      _this2.setupExternalInterface(plugin);
+	    });
+	    return this.core;
+	  };
+
+	  CoreFactory.prototype.setupExternalInterface = function setupExternalInterface(plugin) {
+	    var externalFunctions = plugin.getExternalInterface();
+	    for (var key in externalFunctions) {
+	      this.player[key] = externalFunctions[key].bind(plugin);
+	    }
+	  };
+
+	  return CoreFactory;
+	}(_base_object2.default);
+
+	exports.default = CoreFactory;
+	module.exports = exports['default'];
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = __webpack_require__(15);
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _utils = __webpack_require__(2);
+
+	var _events = __webpack_require__(6);
+
+	var _events2 = _interopRequireDefault(_events);
+
+	var _styler = __webpack_require__(16);
+
+	var _styler2 = _interopRequireDefault(_styler);
+
+	var _ui_object = __webpack_require__(18);
+
+	var _ui_object2 = _interopRequireDefault(_ui_object);
+
+	var _browser = __webpack_require__(3);
+
+	var _browser2 = _interopRequireDefault(_browser);
+
+	var _container_factory = __webpack_require__(20);
+
+	var _container_factory2 = _interopRequireDefault(_container_factory);
+
+	var _media_control = __webpack_require__(27);
+
+	var _media_control2 = _interopRequireDefault(_media_control);
+
+	var _mediator = __webpack_require__(30);
+
+	var _mediator2 = _interopRequireDefault(_mediator);
+
+	var _player_info = __webpack_require__(45);
+
+	var _player_info2 = _interopRequireDefault(_player_info);
+
+	var _clapprZepto = __webpack_require__(4);
+
+	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
+
+	var _style = __webpack_require__(46);
+
+	var _style2 = _interopRequireDefault(_style);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; } // Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	/**
+	 * The Core is responsible to manage Containers, the mediator, MediaControl
+	 * and the player state.
+	 * @class Core
+	 * @constructor
+	 * @extends UIObject
+	 * @module components
+	 */
+	var Core = function (_UIObject) {
+	  _inherits(Core, _UIObject);
+
+	  _createClass(Core, [{
+	    key: 'events',
+	    get: function get() {
+	      return {
+	        'webkitfullscreenchange': 'handleFullscreenChange',
+	        'mousemove': 'showMediaControl',
+	        'mouseleave': 'hideMediaControl'
+	      };
+	    }
+	  }, {
+	    key: 'attributes',
+	    get: function get() {
+	      return {
+	        'data-player': '',
+	        tabindex: 9999
+	      };
+	    }
+
+	    /**
+	     * checks if the core is ready.
+	     * @property isReady
+	     * @type {Boolean} `true` if the core is ready, otherwise `false`
+	     */
+
+	  }, {
+	    key: 'isReady',
+	    get: function get() {
+	      return !!this.ready;
+	    }
+
+	    /**
+	     * The internationalization plugin.
+	     * @property i18n
+	     * @type {Strings}
+	     */
+
+	  }, {
+	    key: 'i18n',
+	    get: function get() {
+	      return this.getPlugin('strings') || { t: function t(key) {
+	          return key;
+	        } };
+	    }
+	  }]);
+
+	  function Core(options) {
+	    _classCallCheck(this, Core);
+
+	    var _this = _possibleConstructorReturn(this, _UIObject.call(this, options));
+
+	    _this.configureDomRecycler();
+	    _this.playerInfo = _player_info2.default.getInstance(options.playerId);
+	    _this.firstResize = true;
+	    _this.plugins = [];
+	    _this.containers = [];
+	    _this.setupMediaControl(null);
+	    //FIXME fullscreen api sucks
+	    _this._boundFullscreenHandler = function () {
+	      return _this.handleFullscreenChange();
+	    };
+	    (0, _clapprZepto2.default)(document).bind('fullscreenchange', _this._boundFullscreenHandler);
+	    (0, _clapprZepto2.default)(document).bind('MSFullscreenChange', _this._boundFullscreenHandler);
+	    (0, _clapprZepto2.default)(document).bind('mozfullscreenchange', _this._boundFullscreenHandler);
+	    return _this;
+	  }
+
+	  Core.prototype.configureDomRecycler = function configureDomRecycler() {
+	    var recycleVideo = this.options && this.options.playback && this.options.playback.recycleVideo ? true : false;
+	    _utils.DomRecycler.configure({
+	      recycleVideo: recycleVideo
+	    });
+	  };
+
+	  Core.prototype.createContainers = function createContainers(options) {
+	    var _this2 = this;
+
+	    this.defer = _clapprZepto2.default.Deferred();
+	    this.defer.promise(this);
+	    this.containerFactory = new _container_factory2.default(options, options.loader, this.i18n);
+	    this.containerFactory.createContainers().then(function (containers) {
+	      return _this2.setupContainers(containers);
+	    }).then(function (containers) {
+	      return _this2.resolveOnContainersReady(containers);
+	    });
+	  };
+
+	  Core.prototype.updateSize = function updateSize() {
+	    if (_utils.Fullscreen.isFullscreen()) {
+	      this.setFullscreen();
+	    } else {
+	      this.setPlayerSize();
+	    }
+	  };
+
+	  Core.prototype.setFullscreen = function setFullscreen() {
+	    if (!_browser2.default.isiOS) {
+	      this.$el.addClass('fullscreen');
+	      this.$el.removeAttr('style');
+	      this.playerInfo.previousSize = { width: this.options.width, height: this.options.height };
+	      this.playerInfo.currentSize = { width: (0, _clapprZepto2.default)(window).width(), height: (0, _clapprZepto2.default)(window).height() };
+	    }
+	  };
+
+	  Core.prototype.setPlayerSize = function setPlayerSize() {
+	    this.$el.removeClass('fullscreen');
+	    this.playerInfo.currentSize = this.playerInfo.previousSize;
+	    this.playerInfo.previousSize = { width: (0, _clapprZepto2.default)(window).width(), height: (0, _clapprZepto2.default)(window).height() };
+	    this.resize(this.playerInfo.currentSize);
+	  };
+
+	  Core.prototype.resize = function resize(options) {
+	    if (!(0, _utils.isNumber)(options.height) && !(0, _utils.isNumber)(options.width)) {
+	      this.el.style.height = '' + options.height;
+	      this.el.style.width = '' + options.width;
+	    } else {
+	      this.el.style.height = options.height + 'px';
+	      this.el.style.width = options.width + 'px';
+	    }
+	    this.playerInfo.previousSize = { width: this.options.width, height: this.options.height };
+	    this.options.width = options.width;
+	    this.options.height = options.height;
+	    this.playerInfo.currentSize = options;
+	    this.triggerResize(this.playerInfo.currentSize);
+	  };
+
+	  Core.prototype.enableResizeObserver = function enableResizeObserver() {
+	    var _this3 = this;
+
+	    var checkSizeCallback = function checkSizeCallback() {
+	      if (_this3.playerInfo.computedSize.width != _this3.el.clientWidth || _this3.playerInfo.computedSize.height != _this3.el.clientHeight) {
+	        _this3.playerInfo.computedSize = { width: _this3.el.clientWidth, height: _this3.el.clientHeight };
+	        _this3.triggerResize(_this3.playerInfo.computedSize);
+	      }
+	    };
+	    this.resizeObserverInterval = setInterval(checkSizeCallback, 500);
+	  };
+
+	  Core.prototype.triggerResize = function triggerResize(newSize) {
+	    var thereWasChange = this.firstResize || this.oldHeight !== newSize.height || this.oldWidth !== newSize.width;
+	    if (thereWasChange) {
+	      _mediator2.default.trigger(this.options.playerId + ':' + _events2.default.PLAYER_RESIZE, newSize);
+	      this.oldHeight = newSize.height;
+	      this.oldWidth = newSize.width;
+	      this.firstResize = false;
+	    }
+	  };
+
+	  Core.prototype.disableResizeObserver = function disableResizeObserver() {
+	    if (this.resizeObserverInterval) clearInterval(this.resizeObserverInterval);
+	  };
+
+	  Core.prototype.resolveOnContainersReady = function resolveOnContainersReady(containers) {
+	    var _this4 = this;
+
+	    _clapprZepto2.default.when.apply(_clapprZepto2.default, containers).done(function () {
+	      _this4.defer.resolve(_this4);
+	      _this4.ready = true;
+	      _this4.trigger(_events2.default.CORE_READY);
+	    });
+	  };
+
+	  Core.prototype.addPlugin = function addPlugin(plugin) {
+	    this.plugins.push(plugin);
+	  };
+
+	  Core.prototype.hasPlugin = function hasPlugin(name) {
+	    return !!this.getPlugin(name);
+	  };
+
+	  Core.prototype.getPlugin = function getPlugin(name) {
+	    return this.plugins.filter(function (plugin) {
+	      return plugin.name === name;
+	    })[0];
+	  };
+
+	  Core.prototype.load = function load(sources, mimeType) {
+	    var _this5 = this;
+
+	    this.options.mimeType = mimeType;
+	    sources = sources && sources.constructor === Array ? sources : [sources];
+	    this.containers.forEach(function (container) {
+	      return container.destroy();
+	    });
+	    this.mediaControl.container = null;
+	    this.containerFactory.options = _clapprZepto2.default.extend(this.options, { sources: sources });
+	    this.containerFactory.createContainers().then(function (containers) {
+	      _this5.setupContainers(containers);
+	    });
+	  };
+
+	  Core.prototype.destroy = function destroy() {
+	    this.disableResizeObserver();
+	    this.containers.forEach(function (container) {
+	      return container.destroy();
+	    });
+	    this.plugins.forEach(function (plugin) {
+	      return plugin.destroy();
+	    });
+	    this.$el.remove();
+	    this.mediaControl.destroy();
+	    (0, _clapprZepto2.default)(document).unbind('fullscreenchange', this._boundFullscreenHandler);
+	    (0, _clapprZepto2.default)(document).unbind('MSFullscreenChange', this._boundFullscreenHandler);
+	    (0, _clapprZepto2.default)(document).unbind('mozfullscreenchange', this._boundFullscreenHandler);
+	  };
+
+	  Core.prototype.handleFullscreenChange = function handleFullscreenChange() {
+	    this.trigger(_events2.default.CORE_FULLSCREEN, _utils.Fullscreen.isFullscreen());
+	    this.updateSize();
+	    this.mediaControl.show();
+	  };
+
+	  Core.prototype.setMediaControlContainer = function setMediaControlContainer(container) {
+	    this.mediaControl.setContainer(container);
+	    this.mediaControl.render();
+	  };
+
+	  Core.prototype.disableMediaControl = function disableMediaControl() {
+	    this.mediaControl.disable();
+	    this.$el.removeClass('nocursor');
+	  };
+
+	  Core.prototype.enableMediaControl = function enableMediaControl() {
+	    this.mediaControl.enable();
+	  };
+
+	  Core.prototype.removeContainer = function removeContainer(container) {
+	    this.stopListening(container);
+	    this.containers = this.containers.filter(function (c) {
+	      return c !== container;
+	    });
+	  };
+
+	  Core.prototype.appendContainer = function appendContainer(container) {
+	    this.listenTo(container, _events2.default.CONTAINER_DESTROYED, this.removeContainer);
+	    this.containers.push(container);
+	  };
+
+	  Core.prototype.setupContainers = function setupContainers(containers) {
+	    containers.map(this.appendContainer.bind(this));
+	    this.trigger(_events2.default.CORE_CONTAINERS_CREATED);
+	    this.renderContainers();
+	    this.setupMediaControl(this.getCurrentContainer());
+	    this.render();
+	    this.$el.appendTo(this.options.parentElement);
+	    return this.containers;
+	  };
+
+	  Core.prototype.renderContainers = function renderContainers() {
+	    var _this6 = this;
+
+	    this.containers.map(function (container) {
+	      return _this6.el.appendChild(container.render().el);
+	    });
+	  };
+
+	  Core.prototype.createContainer = function createContainer(source, options) {
+	    var container = this.containerFactory.createContainer(source, options);
+	    this.appendContainer(container);
+	    this.el.appendChild(container.render().el);
+	    return container;
+	  };
+
+	  Core.prototype.setupMediaControl = function setupMediaControl(container) {
+	    if (this.mediaControl) {
+	      this.mediaControl.setContainer(container);
+	    } else {
+	      this.mediaControl = this.createMediaControl(_clapprZepto2.default.extend({ container: container, focusElement: this.el }, this.options));
+	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_FULLSCREEN, this.toggleFullscreen);
+	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_SHOW, this.onMediaControlShow.bind(this, true));
+	      this.listenTo(this.mediaControl, _events2.default.MEDIACONTROL_HIDE, this.onMediaControlShow.bind(this, false));
+	    }
+	  };
+
+	  Core.prototype.createMediaControl = function createMediaControl(options) {
+	    if (options.mediacontrol && options.mediacontrol.external) {
+	      return new options.mediacontrol.external(options).render();
+	    } else {
+	      return new _media_control2.default(options).render();
+	    }
+	  };
+
+	  Core.prototype.getCurrentContainer = function getCurrentContainer() {
+	    if (!this.mediaControl || !this.mediaControl.container) {
+	      return this.containers[0];
+	    }
+	    return this.mediaControl.container;
+	  };
+
+	  Core.prototype.getCurrentPlayback = function getCurrentPlayback() {
+	    var container = this.getCurrentContainer();
+	    return container && container.playback;
+	  };
+
+	  Core.prototype.getPlaybackType = function getPlaybackType() {
+	    var container = this.getCurrentContainer();
+	    return container && container.getPlaybackType();
+	  };
+
+	  Core.prototype.toggleFullscreen = function toggleFullscreen() {
+	    if (!_utils.Fullscreen.isFullscreen()) {
+	      _utils.Fullscreen.requestFullscreen(this.el);
+	      if (!_browser2.default.isiOS) {
+	        this.$el.addClass('fullscreen');
+	      }
+	    } else {
+	      _utils.Fullscreen.cancelFullscreen();
+	      if (!_browser2.default.isiOS) {
+	        this.$el.removeClass('fullscreen nocursor');
+	      }
+	    }
+	    this.mediaControl.show();
+	  };
+
+	  Core.prototype.showMediaControl = function showMediaControl(event) {
+	    this.mediaControl.show(event);
+	  };
+
+	  Core.prototype.hideMediaControl = function hideMediaControl() {
+	    this.mediaControl.hide(this.options.hideMediaControlDelay);
+	  };
+
+	  Core.prototype.onMediaControlShow = function onMediaControlShow(showing) {
+	    this.getCurrentContainer().trigger(showing ? _events2.default.CONTAINER_MEDIACONTROL_SHOW : _events2.default.CONTAINER_MEDIACONTROL_HIDE);
+
+	    if (showing) this.$el.removeClass('nocursor');else if (_utils.Fullscreen.isFullscreen()) this.$el.addClass('nocursor');
+	  };
+
+	  /**
+	   * enables to configure the container after its creation
+	   * @method configure
+	   * @param {Object} options all the options to change in form of a javascript object
+	   */
+
+
+	  Core.prototype.configure = function configure(options) {
+	    var _this7 = this;
+
+	    this._options = _clapprZepto2.default.extend(this._options, options);
+	    this.configureDomRecycler();
+	    var sources = options.source || options.sources;
+
+	    if (sources) {
+	      this.load(sources, options.mimeType || this.options.mimeType);
+	    } else {
+	      this.trigger(_events2.default.CORE_OPTIONS_CHANGE);
+
+	      this.containers.forEach(function (container) {
+	        container.configure(_this7.options);
+	      });
+	    }
+	  };
+
+	  Core.prototype.render = function render() {
+	    var style = _styler2.default.getStyleFor(_style2.default, { baseUrl: this.options.baseUrl });
+	    this.$el.append(style);
+	    this.$el.append(this.mediaControl.render().el);
+
+	    this.options.width = this.options.width || this.$el.width();
+	    this.options.height = this.options.height || this.$el.height();
+	    var size = { width: this.options.width, height: this.options.height };
+	    this.playerInfo.previousSize = this.playerInfo.currentSize = this.playerInfo.computedSize = size;
+	    this.updateSize();
+
+	    this.previousSize = { width: this.$el.width(), height: this.$el.height() };
+
+	    this.enableResizeObserver();
+
+	    return this;
+	  };
+
+	  return Core;
+	}(_ui_object2.default);
+
+	exports.default = Core;
+	module.exports = exports['default'];
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _clapprZepto = __webpack_require__(4);
+
+	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
+
+	var _template = __webpack_require__(17);
+
+	var _template2 = _interopRequireDefault(_template);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// Copyright 2014 Globo.com Player authors. All rights reserved.
+	// Use of this source code is governed by a BSD-style
+	// license that can be found in the LICENSE file.
+
+	var Styler = {
+	  getStyleFor: function getStyleFor(style) {
+	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : { baseUrl: '' };
+
+	    return (0, _clapprZepto2.default)('<style class="clappr-style"></style>').html((0, _template2.default)(style.toString())(options));
+	  }
+	};
+
+	exports.default = Styler;
+	module.exports = exports['default'];
+
+/***/ },
 /* 17 */
 /***/ function(module, exports) {
 
@@ -5674,7 +5719,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -5682,7 +5727,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
@@ -5697,8 +5742,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	// license that can be found in the LICENSE file.
 
 	var delegateEventSplitter = /^(\S+)\s*(.*)$/;
-
-	var reusableVideo = null;
 
 	/**
 	 * A base class to create ui object.
@@ -5809,7 +5852,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var _this = _possibleConstructorReturn(this, _BaseObject.call(this, options));
 
 	    _this.cid = (0, _utils.uniqueId)('c');
-	    _this._ensureElement(options);
+	    _this._ensureElement();
 	    _this.delegateEvents();
 	    return _this;
 	  }
@@ -5927,12 +5970,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  /**
 	   * ensures the creation of this ui component
 	   * @method _ensureElement
-	   * @param {Object} options the options object
 	   * @private
 	   */
 
 
-	  UIObject.prototype._ensureElement = function _ensureElement(options) {
+	  UIObject.prototype._ensureElement = function _ensureElement() {
 	    if (!this.el) {
 	      var attrs = _clapprZepto2.default.extend({}, (0, _lodash2.default)(this, 'attributes'));
 	      if (this.id) {
@@ -5941,25 +5983,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      if (this.className) {
 	        attrs['class'] = (0, _lodash2.default)(this, 'className');
 	      }
-
-	      var tag = (0, _lodash2.default)(this, 'tagName');
-	      var $el = void 0;
-
-	      if (options && options.playback && options.playback.recycleVideo && tag === 'video') {
-	        // Recycle <video> element if exists, or create one.
-	        // This allow Player.load() with autoPlay on mobile
-	        // device with single touch user action.
-	        if (!reusableVideo) {
-	          reusableVideo = (0, _clapprZepto2.default)('<' + tag + '>').attr(attrs);
-	        } else {
-	          // Clean <style> added in 'html5_video'.render()
-	          reusableVideo.children().remove();
-	        }
-	        $el = reusableVideo.attr(attrs);
-	      } else {
-	        $el = (0, _clapprZepto2.default)('<' + tag + '>').attr(attrs);
-	      }
-
+	      var $el = _utils.DomRecycler.create((0, _lodash2.default)(this, 'tagName')).attr(attrs);
 	      this.setElement($el, false);
 	    } else {
 	      this.setElement((0, _lodash2.default)(this, 'el'), false);
@@ -6931,11 +6955,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -6943,7 +6967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _container2 = _interopRequireDefault(_container);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -7069,7 +7093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -7077,7 +7101,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_object2 = _interopRequireDefault(_ui_object);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -7085,7 +7109,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _style2 = _interopRequireDefault(_style);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -7815,13 +7839,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
-	var _vendor = __webpack_require__(8);
+	var _vendor = __webpack_require__(9);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -7845,7 +7869,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playback2 = _interopRequireDefault(_playback);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -8836,7 +8860,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -11581,7 +11605,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
@@ -14240,7 +14264,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playback2 = _interopRequireDefault(_playback);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -14248,7 +14272,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _browser2 = _interopRequireDefault(_browser);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -14256,7 +14280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _style2 = _interopRequireDefault(_style);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -14405,18 +14429,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      'x-webkit-playsinline': playbackConfig.playInline
 	    });
 
-	    var extraAttrs = {};
-
-	    if (playbackConfig.playInline) {
-	      extraAttrs['webkit-playsinline'] = 'webkit-playsinline';
-	      extraAttrs['playsinline'] = 'playsinline';
-	    }
-
-	    if (playbackConfig.airPlay) {
-	      extraAttrs['x-webkit-airplay'] = 'allow';
-	    }
-
-	    _this.$el.attr(extraAttrs);
+	    playbackConfig.playInline && _this.$el.attr({ playsinline: 'playsinline' });
 
 	    // TODO should settings be private?
 	    _this.settings = { default: ['seekbar'] };
@@ -14646,6 +14659,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.$el.remove();
 	    this.el.src = '';
 	    this._src = null;
+	    _utils.DomRecycler.garbage(this.$el);
 	  };
 
 	  HTML5Video.prototype.seek = function seek(time) {
@@ -14819,11 +14833,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _template2 = _interopRequireDefault(_template);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -15154,7 +15168,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playback2 = _interopRequireDefault(_playback);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -15325,7 +15339,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -15425,7 +15439,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _base_flash_playback2 = _interopRequireDefault(_base_flash_playback);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -15453,7 +15467,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _HLSPlayer2 = _interopRequireDefault(_HLSPlayer);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -16361,7 +16375,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -16375,7 +16389,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
-	var _log = __webpack_require__(6);
+	var _log = __webpack_require__(7);
 
 	var _log2 = _interopRequireDefault(_log);
 
@@ -34215,7 +34229,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playback2 = _interopRequireDefault(_playback);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -34223,7 +34237,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _style2 = _interopRequireDefault(_style);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -34353,11 +34367,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _template2 = _interopRequireDefault(_template);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -34548,11 +34562,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_container_plugin2 = _interopRequireDefault(_ui_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -34784,11 +34798,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _container_plugin2 = _interopRequireDefault(_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -34929,7 +34943,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
@@ -35021,11 +35035,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_container_plugin2 = _interopRequireDefault(_ui_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -35160,11 +35174,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_container_plugin2 = _interopRequireDefault(_ui_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -35405,7 +35419,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _container_plugin2 = _interopRequireDefault(_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -35586,7 +35600,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _container_plugin2 = _interopRequireDefault(_container_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -35680,11 +35694,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _playback2 = _interopRequireDefault(_playback);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -35942,11 +35956,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _core_plugin2 = _interopRequireDefault(_core_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
-	var _clapprZepto = __webpack_require__(16);
+	var _clapprZepto = __webpack_require__(4);
 
 	var _clapprZepto2 = _interopRequireDefault(_clapprZepto);
 
@@ -36092,7 +36106,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _utils = __webpack_require__(2);
 
-	var _base_object = __webpack_require__(4);
+	var _base_object = __webpack_require__(5);
 
 	var _base_object2 = _interopRequireDefault(_base_object);
 
@@ -36181,7 +36195,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _ui_core_plugin2 = _interopRequireDefault(_ui_core_plugin);
 
-	var _styler = __webpack_require__(15);
+	var _styler = __webpack_require__(16);
 
 	var _styler2 = _interopRequireDefault(_styler);
 
@@ -36189,7 +36203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _template2 = _interopRequireDefault(_template);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -36437,7 +36451,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _core_plugin2 = _interopRequireDefault(_core_plugin);
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
@@ -36500,7 +36514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _events = __webpack_require__(5);
+	var _events = __webpack_require__(6);
 
 	var _events2 = _interopRequireDefault(_events);
 
