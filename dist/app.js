@@ -14506,7 +14506,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 	  HTML5Video.prototype.consent = function consent() {
-	    this.el.load();
+	    !this.isPlaying() && this.el.load();
 	  };
 
 	  HTML5Video.prototype.play = function play() {
@@ -38911,8 +38911,8 @@ var config = {
 // Configure playback
 config.playback = {
   playInline: true,
-  airPlay: true,
-  recycleVideo: true };
+  recycleVideo: true
+};
 
 // Add Chromecast support
 config.plugins = [_clapprChromecastPlugin2.default];
@@ -38928,7 +38928,7 @@ config.source = BUNNY;
 
 var player = new _clappr2.default.Player(config);
 
-var getSource = function getSource(cb) {
+function requestSource(cb) {
   $.ajax({
     type: 'GET',
     url: '/source.json',
@@ -38942,21 +38942,23 @@ var getSource = function getSource(cb) {
       cb('request.failed');
     }
   });
-};
+}
 
-var button = $('<button>').text('zap!').css({ width: 640, height: 100 }).on('click', function () {
+var ajaxButton = $('<button>').text('zap!').css({ width: 640, height: 100 }).on('click', function () {
   player.consent();
-  getSource(function (src) {
+  requestSource(function (src) {
     player.load(src, null, true);
   });
 });
 
-$('.app').append(button);
+var timerButton = $('<button>').text('zap in 3 seconds!').css({ width: 640, height: 100 }).on('click', function () {
+  player.consent();
+  setTimeout(function () {
+    player.load(JELLY, null, true);
+  }, 3000);
+});
 
-// setTimeout(function() {
-//   player.consent()
-//   player.load(JELLY, null, true)
-// }, 8000)
+$('.app').append(ajaxButton).append(timerButton);
 
 /***/ })
 /******/ ]);

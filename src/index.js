@@ -20,8 +20,7 @@ let config = {
 // Configure playback
 config.playback = {
   playInline: true,
-  airPlay: true,
-  recycleVideo: true, // Enable <video> element recycle feature
+  recycleVideo: true,
 }
 
 // Add Chromecast support
@@ -38,7 +37,7 @@ config.source = BUNNY
 
 let player = new Clappr.Player(config)
 
-let getSource = function(cb) {
+function requestSource(cb) {
   $.ajax({
     type: 'GET',
     url: '/source.json',
@@ -54,19 +53,26 @@ let getSource = function(cb) {
   })
 }
 
-let button = $('<button>')
+let ajaxButton = $('<button>')
   .text('zap!')
   .css({ width: 640, height: 100 })
   .on('click', function() {
     player.consent()
-    getSource(function(src){
+    requestSource(function(src){
       player.load(src, null, true)
     })
   })
 
-$('.app').append(button)
+let timerButton = $('<button>')
+  .text('zap in 3 seconds!')
+  .css({ width: 640, height: 100 })
+  .on('click', function() {
+    player.consent()
+    setTimeout(function() {
+      player.load(JELLY, null, true)
+    }, 3000)
+  })
 
-// setTimeout(function() {
-//   player.consent()
-//   player.load(JELLY, null, true)
-// }, 8000)
+$('.app')
+  .append(ajaxButton)
+  .append(timerButton)
