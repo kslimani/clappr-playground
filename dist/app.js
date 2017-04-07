@@ -39092,6 +39092,7 @@ function requestSource(cb) {
 var ajaxButton = $('<button>').text('zap!').css({ width: 640, height: 100 }).on('click', function () {
   player.consent();
   requestSource(function (src) {
+    player.stop(); // Will load media in Chromecast (if session initialized)
     player.load(src, null, true);
   });
 });
@@ -39099,6 +39100,7 @@ var ajaxButton = $('<button>').text('zap!').css({ width: 640, height: 100 }).on(
 var timerButton = $('<button>').text('zap in 3 seconds!').css({ width: 640, height: 100 }).on('click', function () {
   player.consent();
   setTimeout(function () {
+    player.stop();
     player.load(JELLY, null, true);
   }, 3000);
 });
