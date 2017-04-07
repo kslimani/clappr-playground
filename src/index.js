@@ -59,6 +59,7 @@ let ajaxButton = $('<button>')
   .on('click', function() {
     player.consent()
     requestSource(function(src){
+      player.stop() // Will load media in Chromecast (if session initialized)
       player.load(src, null, true)
     })
   })
@@ -69,6 +70,7 @@ let timerButton = $('<button>')
   .on('click', function() {
     player.consent()
     setTimeout(function() {
+      player.stop()
       player.load(JELLY, null, true)
     }, 3000)
   })
