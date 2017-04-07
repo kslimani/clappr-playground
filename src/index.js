@@ -9,7 +9,7 @@ const JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8'
 
 let config = {
   parent: '.player',
-  autoPlay: true,
+  autoPlay: !Clappr.Browser.isMobile,
   disableKeyboardShortcuts: true,
   disableVideoTagContextMenu: true,
   autoSeekFromUrl: false,
