@@ -13,8 +13,8 @@ let config = {
   disableKeyboardShortcuts: true,
   disableVideoTagContextMenu: true,
   autoSeekFromUrl: false,
-  width: 640,
-  height: 360,
+  width: '100%',
+  height: '100%',
 }
 
 // Configure playback
@@ -54,8 +54,8 @@ function requestSource(cb) {
 }
 
 let ajaxButton = $('<button>')
+  .addClass('button')
   .text('zap!')
-  .css({ width: 640, height: 100 })
   .on('click', function() {
     player.consent()
     requestSource(function(src){
@@ -65,8 +65,8 @@ let ajaxButton = $('<button>')
   })
 
 let timerButton = $('<button>')
+  .addClass('button')
   .text('zap in 3 seconds!')
-  .css({ width: 640, height: 100 })
   .on('click', function() {
     player.consent()
     setTimeout(function() {
@@ -75,6 +75,6 @@ let timerButton = $('<button>')
     }, 3000)
   })
 
-$('.app')
+$('.buttons')
   .append(ajaxButton)
   .append(timerButton)
