@@ -49,6 +49,7 @@ module.exports = {
       path.resolve(__dirname, "node_modules/clappr/dist"),
     ],
     // publicPath: '/js/',
+    disableHostCheck: true, // https://github.com/webpack/webpack-dev-server/issues/882
     compress: true,
     host: "0.0.0.0",
     port: 8080
