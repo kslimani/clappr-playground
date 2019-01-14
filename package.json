@@ -1,20 +1,18 @@
 {
   "scripts": {
-    "build": "webpack --progress",
-    "check": "david",
-    "dist": "webpack --progress",
+    "build": "webpack --progress --mode production",
+    "dist": "webpack --progress --mode production",
     "release": "npm run build && npm run dist",
-    "start": "webpack-dev-server"
+    "start": "webpack-dev-server --mode development"
   },
   "devDependencies": {
-    "babel-core": "^6.23.1",
-    "babel-loader": "^7.0.0",
-    "babel-preset-es2015": "^6.22.0",
-    "clappr": "^0.2.66",
-    "clappr-chromecast-plugin": "kslimani/clappr-chromecast-plugin#stable",
-    "david": "^11.0.0",
-    "webpack": "^2.2.1",
-    "webpack-dev-server": "^2.4.1",
-    "webpack-notifier": "^1.5.0"
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babel-loader": "^8.0.5",
+    "uglifyjs-webpack-plugin": "^2.1.1",
+    "webpack": "^4.28.3",
+    "webpack-build-notifier": "^0.1.30",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.1.14"
   }
 }
