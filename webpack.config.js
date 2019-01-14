@@ -1,25 +1,32 @@
 // Webpack configuration
 const path = require('path')
 const webpack = require('webpack')
-const NotifierPlugin = require('webpack-notifier')
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin")
+const NotifierPlugin = require('webpack-build-notifier')
 
-var outputFile, plugins = []
+var name = 'app'
+var outputFile, plugins = [], optimization = {}
 
 if (process.env.npm_lifecycle_event === 'dist') {
-  outputFile = 'app.min.js'
-  plugins.push(new webpack.optimize.UglifyJsPlugin({
-    output: {
-      comments: false,
-    },
-  }))
+  outputFile = name + '.min.js'
+  optimization.minimizer = [
+    new UglifyJsPlugin({
+      cache: true,
+      parallel: true,
+      uglifyOptions: {
+        output: {
+          comments: false,
+        },
+      }
+    }),
+  ]
 } else {
-  outputFile = 'app.js'
+  outputFile = name + '.js'
+  optimization.minimize = false
 }
 
 plugins.push(new NotifierPlugin({
-  title: outputFile,
-  alwaysNotify: true,
-  // contentImage: path.resolve(__dirname, 'path/to/image.png')
+  title: optimization.minimizer ? 'minified ' + name : name,
 }))
 
 module.exports = {
@@ -28,17 +35,17 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: outputFile,
   },
+  optimization: optimization,
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        use: {
+          loader: 'babel-loader'
+        },
         include: [
           path.resolve(__dirname, 'src')
         ],
-        options: {
-          presets: ['es2015'],
-        },
       },
     ],
   },
@@ -46,7 +53,6 @@ module.exports = {
   devServer: {
     contentBase: [
       path.resolve(__dirname, "public"),
-      path.resolve(__dirname, "node_modules/clappr/dist"),
     ],
     // publicPath: '/js/',
     disableHostCheck: true, // https://github.com/webpack/webpack-dev-server/issues/882
