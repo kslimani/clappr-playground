@@ -1,11 +1,7 @@
 // Application bundle file
-import Clappr from 'clappr'
-import ChromecastPlugin from 'clappr-chromecast-plugin'
-
 const $ = Clappr.$
-
 const BUNNY = 'http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8'
-const JELLY = 'http://wowza.jwplayer.com/live/jelly.stream/playlist.m3u8'
+const SINTEL = 'https://static.playmedia-cdn.net/resources/sample/h264_sintel_trailer-1080p.mp4'
 
 let config = {
   parent: '.player',
@@ -71,7 +67,7 @@ let timerButton = $('<button>')
     player.consent()
     setTimeout(function() {
       player.stop()
-      player.load(JELLY, null, true)
+      player.load(SINTEL, null, true)
     }, 3000)
   })
 
