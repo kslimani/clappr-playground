@@ -102,14 +102,14 @@ var config = {
   disableVideoTagContextMenu: true,
   autoSeekFromUrl: false,
   width: '100%',
-  height: '100%' // Configure playback
+  height: '100%'
+}; // Configure playback
 
-};
 config.playback = {
   playInline: true,
-  recycleVideo: true // Add Chromecast support
+  recycleVideo: true
+}; // Add Chromecast support
 
-};
 config.plugins = [ChromecastPlugin];
 config.chromecast = {
   appId: '9DFB77C0',
